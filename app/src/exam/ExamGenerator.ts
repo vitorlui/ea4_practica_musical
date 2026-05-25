@@ -1,9 +1,7 @@
 import { SYNCOPATION_EXERCISES } from "../data/syncopationExercises";
 import { classifyMeasures } from "../utils/beatTypeClassifier";
 import { SCALE_EXERCISES } from "../data/scaleExercises";
-import { KEY_SIGNATURE_EXERCISES } from "../data/keySignatureExercises";
 import { buildScale, noteToSpanish } from "../theory/scales";
-import { getKeySignature, getRelativeKey } from "../theory/keys";
 import { addBeatStrengths } from "../utils/metricLabels";
 import {
   TRANSPORT_INTERVALS, transposeMeasures, transposeKeySignature,
@@ -712,8 +710,11 @@ const NOTAS_EXTRANYAS_FRAGMENTS: NotasExtranyes[] = [
         { keys: ["g/4"], duration: "8" },
         { keys: ["f#/4"], duration: "q" },
       ]},
-      // M4 · G4(hd)
-      { notes: [{ keys: ["g/4"], duration: "h", dots: 1 }] },
+      // M4 · A4(q) G4(h) — A on downbeat resolving to tonic
+      { notes: [
+        { keys: ["a/4"], duration: "q" },
+        { keys: ["g/4"], duration: "h" },
+      ]},
     ],
     annotatedMeasures: [
       { notes: [
@@ -737,7 +738,10 @@ const NOTAS_EXTRANYAS_FRAGMENTS: NotasExtranyes[] = [
         { keys: ["g/4"], duration: "8" },
         { keys: ["f#/4"], duration: "q" },
       ]},
-      { notes: [{ keys: ["g/4"], duration: "h", dots: 1 }] },
+      { notes: [
+        { keys: ["a/4"], duration: "q", annotations: ["A"], annotationColors: ["#ea580c"] },
+        { keys: ["g/4"], duration: "h" },
+      ]},
     ],
     explanations: [
       "B (bordadura): La4 (compàs 1) — grau superior de Sol4; surt i retorna immediatament",
@@ -745,6 +749,7 @@ const NOTAS_EXTRANYAS_FRAGMENTS: NotasExtranyes[] = [
       "B (bordadura): Mi5 (compàs 2) — grau superior de Re5; surt i retorna immediatament",
       "B (bordadura): Do5 (compàs 3) — grau superior de Si4; surt i retorna immediatament",
       "NP (nota de pas): La4 (compàs 3) — connecta Si4 i Sol4 per grau conjunt descendent",
+      "A (apoggiatura): La4 (compàs 4) — cau en temps fort, un grau per sobre de Sol4 (tònica); resol per grau conjunt descendent",
     ],
   },
 
@@ -1116,27 +1121,31 @@ function generateScaleExercise(num: number, cfg: ScalesConfig): ExamExercise {
   };
 }
 
+const KS_ITEMS = [
+  { vexKey: "C",  majorLabel: "Do major",   minorLabel: "La menor",   accidentalType: "none"  as const },
+  { vexKey: "G",  majorLabel: "Sol major",  minorLabel: "Mi menor",   accidentalType: "sharp" as const },
+  { vexKey: "D",  majorLabel: "Re major",   minorLabel: "Si menor",   accidentalType: "sharp" as const },
+  { vexKey: "A",  majorLabel: "La major",   minorLabel: "Fa# menor",  accidentalType: "sharp" as const },
+  { vexKey: "E",  majorLabel: "Mi major",   minorLabel: "Do# menor",  accidentalType: "sharp" as const },
+  { vexKey: "F",  majorLabel: "Fa major",   minorLabel: "Re menor",   accidentalType: "flat"  as const },
+  { vexKey: "Bb", majorLabel: "Si♭ major",  minorLabel: "Sol menor",  accidentalType: "flat"  as const },
+  { vexKey: "Eb", majorLabel: "Mi♭ major",  minorLabel: "Do menor",   accidentalType: "flat"  as const },
+  { vexKey: "Ab", majorLabel: "La♭ major",  minorLabel: "Fa menor",   accidentalType: "flat"  as const },
+];
+
 function generateKeySignatureExercise(num: number, cfg: KeySigConfig): ExamExercise {
-  const pool = filterOrAll(KEY_SIGNATURE_EXERCISES, f => {
-    const modeOk = cfg.modes.length === 0 || cfg.modes.includes(f.mode);
-    const accOk = cfg.accidentalTypes.length === 0 || cfg.accidentalTypes.includes(f.accidentalType);
-    return modeOk && accOk;
-  });
-  const ex = pickRandom(pool);
-  const ks = getKeySignature(ex.tonic, ex.mode);
-  const relative = getRelativeKey(ex.tonic, ex.mode);
+  const pool = cfg.accidentalTypes.length > 0
+    ? KS_ITEMS.filter(x => cfg.accidentalTypes.includes(x.accidentalType))
+    : KS_ITEMS;
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  const items = shuffled.slice(0, Math.min(6, shuffled.length));
   return {
     type: "armadura",
     number: num,
     title: "Armadura",
-    instructions: "Identifica la tonalitat major i menor de la següent armadura. Escriu les alteracions corresponents.",
-    data: { exercise: ex },
-    solution: {
-      tonic: ex.tonic, mode: ex.mode, label: ex.label,
-      accidentals: ks.accidentals, numAccidentals: ks.numAccidentals,
-      accidentalType: ks.accidentalType,
-      relative: `${relative.tonic} ${relative.mode === "major" ? "major" : "menor"}`,
-    },
+    instructions: "Per a cada armadura, escriu el nom de la tonalitat major i la seva relativa menor.",
+    data: { items },
+    solution: { items },
   };
 }
 

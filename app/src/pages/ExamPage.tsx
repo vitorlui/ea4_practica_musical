@@ -155,15 +155,30 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
         )}
 
         {/* ── 7. Armadura ────────────────────────────────── */}
-        {exercise.type === "armadura" && Boolean(data.exercise) && (
-          <VexFlowRenderer
-            notes={[{ keys: ["b/4"], duration: "wr", isRest: true }]}
-            keySignature={(data.exercise as { tonic: string }).tonic}
-            timeSignature=""
-            width={260}
-            height={120}
-          />
-        )}
+        {exercise.type === "armadura" && (() => {
+          type KSItem = { vexKey: string; majorLabel: string; minorLabel: string };
+          const items = (data.items as KSItem[]) ?? [];
+          return (
+            <div className="grid grid-cols-3 gap-x-4 gap-y-4">
+              {items.map((item, i) => (
+                <div key={i} className="flex flex-col items-center">
+                  <VexFlowRenderer
+                    notes={[{ keys: ["b/4"], duration: "wr", isRest: true }]}
+                    keySignature={item.vexKey}
+                    timeSignature=""
+                    width={220}
+                    height={110}
+                    staveY={20}
+                  />
+                  <div className="mt-1 w-44 space-y-2">
+                    <div className="border-b border-gray-400 h-5" />
+                    <div className="border-b border-gray-400 h-5" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
 
         {/* ── 8. Notes estranyes ─────────────────────────── */}
         {exercise.type === "notas_extranyas" && (
@@ -175,7 +190,7 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
         )}
 
         {/* Answer line */}
-        {!showSolution && ["compas_tonalidad", "armadura"].includes(exercise.type) && (
+        {!showSolution && exercise.type === "compas_tonalidad" && (
           <div className="answer-line mt-3 h-8 border-b border-gray-300 w-64" />
         )}
       </div>
@@ -290,11 +305,30 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
             </>
           )}
 
-          {exercise.type === "armadura" && (
-            <p>
-              {str(sol, "label")} — Relativa: <strong>{str(sol, "relative")}</strong>
-            </p>
-          )}
+          {exercise.type === "armadura" && (() => {
+            type KSItem = { vexKey: string; majorLabel: string; minorLabel: string };
+            const items = (sol.items as KSItem[]) ?? [];
+            return (
+              <div className="grid grid-cols-3 gap-x-4 gap-y-4">
+                {items.map((item, i) => (
+                  <div key={i} className="flex flex-col items-center">
+                    <VexFlowRenderer
+                      notes={[{ keys: ["b/4"], duration: "wr", isRest: true }]}
+                      keySignature={item.vexKey}
+                      timeSignature=""
+                      width={220}
+                      height={110}
+                      staveY={20}
+                    />
+                    <div className="mt-1 text-center text-xs">
+                      <p className="font-semibold text-blue-700">{item.majorLabel}</p>
+                      <p className="text-gray-600">Relativa: {item.minorLabel}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
 
           {exercise.type === "notas_extranyas" && (
             <>
