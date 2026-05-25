@@ -528,71 +528,72 @@ function qn(dur: string, x: Partial<VexNote> = {}): VexNote { return { keys: ["b
 function cn(dur: string, x: Partial<VexNote> = {}): VexNote { return { keys: ["b/4"], duration: dur, color: CC, ...x }; }
 
 // Two interchangeable sets of 6 measures (randomly chosen per exam).
+// Each questionNotes has exactly ONE figure; student fills the rest.
 // Beat counts verified for each time signature.
 const COMPLETE_BAR_SETS: CompleteMeasureItem[][] = [
   // ── Set A ─────────────────────────────────────────────────────────────────
   [
-    // A1 · 4/4 · given: 8-rest + q. (=2 beats) · completion: h (=2 beats)
+    // A1 · 4/4 · given: q. (=1.5 b) · completion: q.+q (=2.5 b)
     { timeSignature: "4/4",
-      questionNotes:  [qn("8", { isRest: true }), qn("q", { dots: 1 })],
-      completionNotes:[cn("h")] },
-
-    // A2 · 3/4 · given: q + 8 (=1.5 beats) · completion: q. (=1.5 beats)
-    { timeSignature: "3/4",
-      questionNotes:  [qn("q"), qn("8")],
-      completionNotes:[cn("q", { dots: 1 })] },
-
-    // A3 · 2/4 · given: 8. + 16 (=1 beat) · completion: q (=1 beat)
-    { timeSignature: "2/4",
-      questionNotes:  [qn("8", { dots: 1 }), qn("16")],
-      completionNotes:[cn("q")] },
-
-    // A4 · 6/8 · given: 8.+16+q (=4 eighths) · completion: q (=2 eighths)
-    { timeSignature: "6/8",
-      questionNotes:  [qn("8", { dots: 1 }), qn("16"), qn("q")],
-      completionNotes:[cn("q")] },
-
-    // A5 · 9/8 · given: q.+8 (=4 eighths) · completion: q.+q (=5 eighths)
-    { timeSignature: "9/8",
-      questionNotes:  [qn("q", { dots: 1 }), qn("8")],
+      questionNotes:  [qn("q", { dots: 1 })],
       completionNotes:[cn("q", { dots: 1 }), cn("q")] },
 
-    // A6 · 6/8 · given: 8-rest+q. (=4 eighths) · completion: q (=2 eighths)
+    // A2 · 3/4 · given: q-rest (=1 b) · completion: q.+8 (=2 b)
+    { timeSignature: "3/4",
+      questionNotes:  [qn("q", { isRest: true })],
+      completionNotes:[cn("q", { dots: 1 }), cn("8")] },
+
+    // A3 · 2/4 · given: 8. (=0.75 b) · completion: 16+q (=1.25 b)
+    { timeSignature: "2/4",
+      questionNotes:  [qn("8", { dots: 1 })],
+      completionNotes:[cn("16"), cn("q")] },
+
+    // A4 · 6/8 · given: q (=2 eighths) · completion: 8.+16+q (=4 eighths)
     { timeSignature: "6/8",
-      questionNotes:  [qn("8", { isRest: true }), qn("q", { dots: 1 })],
-      completionNotes:[cn("q")] },
+      questionNotes:  [qn("q")],
+      completionNotes:[cn("8", { dots: 1 }), cn("16"), cn("q")] },
+
+    // A5 · 9/8 · given: q. (=3 eighths) · completion: 8+q.+q (=6 eighths)
+    { timeSignature: "9/8",
+      questionNotes:  [qn("q", { dots: 1 })],
+      completionNotes:[cn("8"), cn("q", { dots: 1 }), cn("q")] },
+
+    // A6 · 6/8 · given: 8-rest (=1 eighth) · completion: q.+q (=5 eighths)
+    { timeSignature: "6/8",
+      questionNotes:  [qn("8", { isRest: true })],
+      completionNotes:[cn("q", { dots: 1 }), cn("q")] },
   ],
   // ── Set B ─────────────────────────────────────────────────────────────────
   [
-    // B1 · 4/4 · given: q.+8+q (=3 beats) · completion: q (=1 beat)
+    // B1 · 4/4 · given: h (=2 b) · completion: q.+8 (=2 b)
     { timeSignature: "4/4",
-      questionNotes:  [qn("q", { dots: 1 }), qn("8"), qn("q")],
-      completionNotes:[cn("q")] },
+      questionNotes:  [qn("h")],
+      completionNotes:[cn("q", { dots: 1 }), cn("8")] },
 
-    // B2 · 3/4 · given: 8+q. (=2 beats) · completion: q (=1 beat)
+    // B2 · 3/4 · given: 8. (=0.75 b) · completion: 16+h (=2.25 b)
     { timeSignature: "3/4",
-      questionNotes:  [qn("8"), qn("q", { dots: 1 })],
-      completionNotes:[cn("q")] },
+      questionNotes:  [qn("8", { dots: 1 })],
+      completionNotes:[cn("16"), cn("h")] },
 
-    // B3 · 2/4 · given: 16+8+16 (=1 beat, Lombard) · completion: q (=1 beat)
+    // B3 · 2/4 · given: q (=1 b) · completion: 8.+16 (=1 b)
     { timeSignature: "2/4",
-      questionNotes:  [qn("16"), qn("8"), qn("16")],
-      completionNotes:[cn("q")] },
+      questionNotes:  [qn("q")],
+      completionNotes:[cn("8", { dots: 1 }), cn("16")] },
 
-    // B4 · 6/8 · given: q+q. (=5 eighths, syncopated) · completion: 8 (=1 eighth)
+    // B4 · 6/8 · given: 8. (=1.5 eighths) · completion: 16+q+q (=4.5 eighths)
     { timeSignature: "6/8",
-      questionNotes:  [qn("q"), qn("q", { dots: 1 })],
-      completionNotes:[cn("8")] },
+      questionNotes:  [qn("8", { dots: 1 })],
+      completionNotes:[cn("16"), cn("q"), cn("q")] },
 
-    // B5 · 9/8 · given: q.+8+q (=6 eighths) · completion: q. (=3 eighths)
+    // B5 · 9/8 · given: 8-rest (=1 eighth) · completion: q.+q+q. (=8 eighths)
     { timeSignature: "9/8",
-      questionNotes:  [qn("q", { dots: 1 }), qn("8"), qn("q")],
-      completionNotes:[cn("q", { dots: 1 })] },
+      questionNotes:  [qn("8", { isRest: true })],
+      completionNotes:[cn("q", { dots: 1 }), cn("q"), cn("q", { dots: 1 })] },
 
-    // B6 · 6/8 · given: q-rest+8.+16 (=4 eighths) · completion: q (=2 eighths)
+    // B6 · 6/8 · given: q. (=3 eighths) · completion: 8+8+8 (=3 eighths)
     { timeSignature: "6/8",
-      questionNotes:  [qn("q", { isRest: true }), qn("8", { dots: 1 }), qn("16")],
-      completionNotes:[cn("q")] },
+      questionNotes:  [qn("q", { dots: 1 })],
+      completionNotes:[cn("8"), cn("8"), cn("8")] },
   ],
 ];
 
