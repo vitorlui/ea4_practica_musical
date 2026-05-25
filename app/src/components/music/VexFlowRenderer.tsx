@@ -8,6 +8,8 @@ import {
   Accidental,
   Annotation,
   Dot,
+  Ornament,
+  Stroke,
 } from "vexflow";
 
 export interface VexNote {
@@ -22,6 +24,8 @@ export interface VexNote {
   dots?: number;
   tieToNext?: boolean;              // tie this note to the next (including cross-barline)
   color?: string;                   // note head / stem color (CSS color string)
+  ornament?: string;                // VexFlow ornament type: "mordent", "mordentInverted", "trill", "turn", "tr"
+  arpeggio?: boolean;               // render vertical arpeggio wave on chord
 }
 
 interface VexFlowRendererProps {
@@ -108,6 +112,14 @@ export function VexFlowRenderer({
             ann.setStyle({ fillStyle: color, strokeStyle: color });
             sn.addModifier(ann, 0);
           });
+        }
+
+        if (n.ornament) {
+          sn.addModifier(new Ornament(n.ornament), 0);
+        }
+
+        if (n.arpeggio) {
+          sn.addModifier(new Stroke(Stroke.Type.ARPEGGIO_DIRECTIONLESS), 0);
         }
 
         return sn;

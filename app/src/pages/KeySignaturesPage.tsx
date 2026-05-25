@@ -7,11 +7,57 @@ const ARMADURA_THEORY: TheorySection[] = [
   {
     id: "def",
     steps: [
-      { title: "Orden de los sostenidos", body: "Fa - Do - Sol - Re - La - Mi - Si. Mnemotécnica: 'Fa Do Sol Re La Mi Si'. La tónica mayor está una 2ª menor (1 semitono) por encima del último sostenido. Ejemplo: 2 sostenidos (Fa#, Do#) → último = Do#, tónica = Re → Re Mayor." },
-      { title: "Orden de los bemoles", body: "Si - Mi - La - Re - Sol - Do - Fa. La tónica mayor es el penúltimo bemol. Ejemplo: 3 bemoles (Sib, Mib, Lab) → penúltimo = Mib → Mib Mayor. Excepción: 1 bemol (Sib) = Fa Mayor (memorizar)." },
-      { title: "Tonalidades relativas", body: "Cada armadura pertenece a dos tonalidades: una mayor y su relativa menor. La relativa menor está una 3ª menor (1T+1ST) por debajo de la mayor. Ej: Do Mayor → La menor; Sol Mayor → Mi menor." },
-      { title: "Tonalidades enarmónicas", body: "Fa# Mayor (6#) = Solb Mayor (6b). Do# Mayor (7#) = Reb Mayor (5b). Estas tonalidades suenan igual pero se escriben de forma distinta." },
-      { title: "Do Mayor y La menor", body: "Sin alteraciones en la armadura. Do Mayor y La menor son la pareja relativa sin accidentales.", highlight: true },
+      {
+        title: "Orden de los sostenidos",
+        body: "Fa - Do - Sol - Re - La - Mi - Si. La tónica mayor está una 2ª menor (1 semitono) por encima del último sostenido. Ejemplo: 2 sostenidos (Fa#, Do#) → último = Do#, tónica = Re → Re Mayor.",
+        staffExample: {
+          notes: [{ keys: ["b/4"], duration: "wr", isRest: true }],
+          keySignature: "D",
+          timeSignature: "",
+          caption: "Re Mayor (2#: Fa# y Do#): tónica = un semitono sobre el último # (Do#→Re)",
+        },
+      },
+      {
+        title: "Orden de los bemoles",
+        body: "Si - Mi - La - Re - Sol - Do - Fa. La tónica mayor es el penúltimo bemol. Ejemplo: 3 bemoles (Sib, Mib, Lab) → penúltimo = Mib → Mib Mayor. Excepción: 1 bemol (Sib) = Fa Mayor (memorizar).",
+        staffExample: {
+          notes: [{ keys: ["b/4"], duration: "wr", isRest: true }],
+          keySignature: "Eb",
+          timeSignature: "",
+          caption: "Mib Mayor (3b: Sib, Mib, Lab): tónica = penúltimo bemol = Mib",
+        },
+      },
+      {
+        title: "Tonalidades relativas",
+        body: "Cada armadura pertenece a dos tonalidades: una mayor y su relativa menor. La relativa menor está una 3ª menor (1T+1ST) por debajo de la mayor. Ej: Sol Mayor → Mi menor.",
+        staffExample: {
+          notes: [{ keys: ["b/4"], duration: "wr", isRest: true }],
+          keySignature: "G",
+          timeSignature: "",
+          caption: "Sol Mayor / Mi menor: misma armadura (1#: Fa#). Relativa menor 3ª↓",
+        },
+      },
+      {
+        title: "Tonalidades enarmónicas",
+        body: "Fa# Mayor (6#) = Solb Mayor (6b). Do# Mayor (7#) = Reb Mayor (5b). Estas tonalidades suenan igual pero se escriben de forma distinta.",
+        staffExample: {
+          notes: [{ keys: ["b/4"], duration: "wr", isRest: true }],
+          keySignature: "F#",
+          timeSignature: "",
+          caption: "Fa# Mayor (6#) = Solb Mayor (6b): misma tonalidad, diferente escritura",
+        },
+      },
+      {
+        title: "Do Mayor y La menor",
+        body: "Sin alteraciones en la armadura. Do Mayor y La menor son la pareja relativa sin accidentales.",
+        highlight: true,
+        staffExample: {
+          notes: [{ keys: ["b/4"], duration: "wr", isRest: true }],
+          keySignature: "C",
+          timeSignature: "",
+          caption: "Do Mayor / La menor: sin alteraciones (armadura vacía)",
+        },
+      },
     ],
     table: {
       headers: ["Alteraciones", "Mayor", "Relativa menor"],

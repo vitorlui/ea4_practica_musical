@@ -7,10 +7,78 @@ const ESCALAS_THEORY: TheorySection[] = [
   {
     id: "def",
     steps: [
-      { title: "Escala mayor", body: "Patrón: T-T-ST-T-T-T-ST (T = tono = 2 semitonos, ST = semitono = 1 semitono). Ejemplo Do mayor: Do Re Mi Fa Sol La Si Do. Primer tetracordo: Do-Re-Mi-Fa. Segundo tetracordo: Sol-La-Si-Do." },
-      { title: "Escala menor natural", body: "Patrón: T-ST-T-T-ST-T-T. Ejemplo La menor: La Si Do Re Mi Fa Sol La. Es la relativa menor de Do mayor (misma armadura)." },
-      { title: "Escala menor armónica", body: "Igual que la menor natural pero el VII grado sube medio tono (sensible). Ejemplo La menor armónica: La Si Do Re Mi Fa Sol# La. El intervalo entre VI y VII es de tono y medio (T+ST)." },
-      { title: "Escala menor melódica", body: "Ascendente: VI y VII suben medio tono. Descendente: igual que la menor natural. Ejemplo La menor melódica asc.: La Si Do Re Mi Fa# Sol# La." },
+      {
+        title: "Escala mayor",
+        body: "Patrón: T-T-ST-T-T-T-ST (T = tono = 2 semitonos, ST = semitono = 1 semitono). Ejemplo Do mayor: Do Re Mi Fa Sol La Si Do. Primer tetracordo: Do-Re-Mi-Fa. Segundo tetracordo: Sol-La-Si-Do.",
+        staffExample: {
+          notes: [
+            { keys: ["c/4"], duration: "q", bottomAnnotations: ["T"],  bottomAnnotationColors: ["#2563eb"] },
+            { keys: ["d/4"], duration: "q", bottomAnnotations: ["T"],  bottomAnnotationColors: ["#2563eb"] },
+            { keys: ["e/4"], duration: "q", bottomAnnotations: ["ST"], bottomAnnotationColors: ["#dc2626"] },
+            { keys: ["f/4"], duration: "q", bottomAnnotations: ["T"],  bottomAnnotationColors: ["#2563eb"] },
+            { keys: ["g/4"], duration: "q", bottomAnnotations: ["T"],  bottomAnnotationColors: ["#2563eb"] },
+            { keys: ["a/4"], duration: "q", bottomAnnotations: ["T"],  bottomAnnotationColors: ["#2563eb"] },
+            { keys: ["b/4"], duration: "q", bottomAnnotations: ["ST"], bottomAnnotationColors: ["#dc2626"] },
+            { keys: ["c/5"], duration: "q" },
+          ],
+          timeSignature: "", width: 520, height: 155,
+          caption: "Do mayor: T-T-ST-T-T-T-ST (ST = semitono en rojo)",
+        },
+      },
+      {
+        title: "Escala menor natural",
+        body: "Patrón: T-ST-T-T-ST-T-T. Ejemplo La menor: La Si Do Re Mi Fa Sol La. Es la relativa menor de Do mayor (misma armadura).",
+        staffExample: {
+          notes: [
+            { keys: ["a/3"], duration: "q", bottomAnnotations: ["T"],  bottomAnnotationColors: ["#2563eb"] },
+            { keys: ["b/3"], duration: "q", bottomAnnotations: ["ST"], bottomAnnotationColors: ["#dc2626"] },
+            { keys: ["c/4"], duration: "q", bottomAnnotations: ["T"],  bottomAnnotationColors: ["#2563eb"] },
+            { keys: ["d/4"], duration: "q", bottomAnnotations: ["T"],  bottomAnnotationColors: ["#2563eb"] },
+            { keys: ["e/4"], duration: "q", bottomAnnotations: ["ST"], bottomAnnotationColors: ["#dc2626"] },
+            { keys: ["f/4"], duration: "q", bottomAnnotations: ["T"],  bottomAnnotationColors: ["#2563eb"] },
+            { keys: ["g/4"], duration: "q", bottomAnnotations: ["T"],  bottomAnnotationColors: ["#2563eb"] },
+            { keys: ["a/4"], duration: "q" },
+          ],
+          timeSignature: "", width: 520, height: 155,
+          caption: "La menor natural: T-ST-T-T-ST-T-T",
+        },
+      },
+      {
+        title: "Escala menor armónica",
+        body: "Igual que la menor natural pero el VII grado sube medio tono (sensible). Ejemplo La menor armónica: La Si Do Re Mi Fa Sol# La. El intervalo entre VI y VII es de tono y medio (T+ST).",
+        staffExample: {
+          notes: [
+            { keys: ["a/3"], duration: "q" },
+            { keys: ["b/3"], duration: "q" },
+            { keys: ["c/4"], duration: "q" },
+            { keys: ["d/4"], duration: "q" },
+            { keys: ["e/4"], duration: "q" },
+            { keys: ["f/4"], duration: "q" },
+            { keys: ["g/4"], duration: "q", accidentals: ["#"], annotations: ["↑VII"], annotationColors: ["#dc2626"] },
+            { keys: ["a/4"], duration: "q" },
+          ],
+          timeSignature: "", width: 520, height: 155,
+          caption: "La menor armónica: VII grado subido Sol→Sol# (sensible, ↑)",
+        },
+      },
+      {
+        title: "Escala menor melódica",
+        body: "Ascendente: VI y VII suben medio tono. Descendente: igual que la menor natural. Ejemplo La menor melódica asc.: La Si Do Re Mi Fa# Sol# La.",
+        staffExample: {
+          notes: [
+            { keys: ["a/3"], duration: "q" },
+            { keys: ["b/3"], duration: "q" },
+            { keys: ["c/4"], duration: "q" },
+            { keys: ["d/4"], duration: "q" },
+            { keys: ["e/4"], duration: "q" },
+            { keys: ["f/4"], duration: "q", accidentals: ["#"], annotations: ["↑VI"], annotationColors: ["#d97706"] },
+            { keys: ["g/4"], duration: "q", accidentals: ["#"], annotations: ["↑VII"], annotationColors: ["#dc2626"] },
+            { keys: ["a/4"], duration: "q" },
+          ],
+          timeSignature: "", width: 520, height: 155,
+          caption: "La menor melódica (asc.): VI y VII subidos (Fa#, Sol#)",
+        },
+      },
       { title: "Tetracordos", body: "Un tetracordo es un grupo de 4 notas consecutivas. Cada escala tiene dos tetracordos: 1.º = grados I-II-III-IV, 2.º = grados V-VI-VII-VIII. El libro pide señalarlos en el examen." },
     ],
     table: {

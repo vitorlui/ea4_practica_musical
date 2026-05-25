@@ -7,9 +7,45 @@ const SINCOPA_THEORY: TheorySection[] = [
   {
     id: "def",
     steps: [
-      { title: "¿Qué es el tiempo fuerte?", body: "En un compás, el primer tiempo siempre es fuerte. En 4/4 también es semifuerte el tercer tiempo. Los demás son débiles." },
-      { title: "Definición de síncopa", body: "Una síncopa es una nota que empieza en un tiempo o parte DÉBIL y se prolonga (por su valor o ligada) ocupando el tiempo FUERTE siguiente. La nota 'atraviesa' la línea de tiempo fuerte." },
-      { title: "Definición de contratiempo", body: "Un contratiempo es una nota corta que ocupa un tiempo o parte DÉBIL, precedida por una pausa en tiempo fuerte. No se prolonga al tiempo fuerte. Hay pausa en el tiempo fuerte." },
+      {
+        title: "¿Qué es el tiempo fuerte?",
+        body: "En un compás, el primer tiempo siempre es fuerte. En 4/4 también es semifuerte el tercer tiempo. Los demás son débiles.",
+        staffExample: {
+          notes: [
+            { keys: ["c/4"], duration: "q", bottomAnnotations: ["F"],  bottomAnnotationColors: ["#dc2626"] },
+            { keys: ["d/4"], duration: "q", bottomAnnotations: ["D"],  bottomAnnotationColors: ["#6b7280"] },
+            { keys: ["e/4"], duration: "q", bottomAnnotations: ["SF"], bottomAnnotationColors: ["#d97706"] },
+            { keys: ["f/4"], duration: "q", bottomAnnotations: ["D"],  bottomAnnotationColors: ["#6b7280"] },
+          ],
+          timeSignature: "4/4",
+          caption: "4/4: F=fuerte, D=débil, SF=semifuerte",
+        },
+      },
+      {
+        title: "Definición de síncopa",
+        body: "Una síncopa es una nota que empieza en un tiempo o parte DÉBIL y se prolonga (por su valor o ligada) ocupando el tiempo FUERTE siguiente. La nota 'atraviesa' la línea de tiempo fuerte.",
+        staffExample: {
+          notes: [
+            { keys: ["c/4"], duration: "8",  bottomAnnotations: ["F"],  bottomAnnotationColors: ["#dc2626"] },
+            { keys: ["c/4"], duration: "qd", dots: 1, bottomAnnotations: ["S>"], bottomAnnotationColors: ["#7c3aed"] },
+            { keys: ["c/4"], duration: "8",  bottomAnnotations: ["D"],  bottomAnnotationColors: ["#6b7280"] },
+          ],
+          timeSignature: "2/4",
+          caption: "Síncopa (S>): corchea(F) + negra con puntillo que cruza el tiempo 2(F) + corchea(D)",
+        },
+      },
+      {
+        title: "Definición de contratiempo",
+        body: "Un contratiempo es una nota corta que ocupa un tiempo o parte DÉBIL, precedida por una pausa en tiempo fuerte. No se prolonga al tiempo fuerte. Hay pausa en el tiempo fuerte.",
+        staffExample: {
+          notes: [
+            { keys: ["b/4"], duration: "qr", isRest: true, bottomAnnotations: ["F"],  bottomAnnotationColors: ["#dc2626"] },
+            { keys: ["c/4"], duration: "q",  bottomAnnotations: ["+C"], bottomAnnotationColors: ["#ea580c"] },
+          ],
+          timeSignature: "2/4",
+          caption: "Contratiempo (+C): silencio en tiempo fuerte (F), nota en tiempo débil",
+        },
+      },
       { title: "Cómo identificar síncopa (método)", body: "1) Señala los tiempos fuertes. 2) Busca notas que empiecen en tiempo débil. 3) Si esa nota cruza el tiempo fuerte siguiente (por duración o ligadura) → síncopa." },
       { title: "Cómo identificar contratiempo (método)", body: "1) Señala los tiempos fuertes. 2) Busca pausas en tiempo fuerte. 3) Si después de la pausa hay una nota en tiempo débil que no llega al fuerte → contratiempo." },
       { title: "Regla mnemotécnica", body: "SÍNCOPA: la nota 'salta' sobre el tiempo fuerte. CONTRATIEMPO: la pausa 'ocupa' el tiempo fuerte.", highlight: true },

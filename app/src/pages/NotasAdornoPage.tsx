@@ -22,21 +22,43 @@ const ADORNO_THEORY: TheorySection[] = [
           caption: "Apoiatura: nota pequeña Re → nota real Do",
         },
       },
-      { title: "Acciaccatura (apoiatura breve)", body: "Nota pequeña tachada (corchea pequeña con una raya). Se interpreta muy brevemente, casi simultánea a la nota real. Es más rápida que la apoiatura." },
-      { title: "Mordente", body: "Alternancia rápida (normalmente una vez) entre la nota real y la nota superior (mordente superior) o inferior (mordente inferior). El símbolo es una pequeña onda sobre la nota." },
+      {
+        title: "Acciaccatura (apoiatura breve)",
+        body: "Nota pequeña tachada (corchea pequeña con una raya diagonal). Se interpreta muy brevemente, casi simultánea a la nota real. Es más rápida que la apoiatura y se escribe con una raya que la tacha.",
+        staffExample: {
+          notes: [
+            { keys: ["d/4"], duration: "8", annotations: ["♪/"], annotationColors: ["#6366f1"] },
+            { keys: ["c/4"], duration: "q" },
+            { keys: ["d/4"], duration: "8", annotations: ["♪/"], annotationColors: ["#6366f1"] },
+            { keys: ["e/4"], duration: "q" },
+          ],
+          timeSignature: "",
+          caption: "Acciaccatura (♪/): nota breve tachada antes de la nota real (Do, Mi)",
+        },
+      },
+      {
+        title: "Mordente",
+        body: "Alternancia rápida (normalmente una vez) entre la nota real y la nota superior (mordente superior) o inferior (mordente inferior). El símbolo es una pequeña onda sobre la nota.",
+        staffExample: {
+          notes: [
+            { keys: ["c/4"], duration: "h", ornament: "mordent" },
+            { keys: ["c/4"], duration: "h", ornament: "mordentInverted" },
+          ],
+          timeSignature: "",
+          caption: "Mordente superior (Do→Re→Do) y mordente inferior (Do→Si→Do)",
+        },
+      },
       {
         title: "Grupeto (~)",
         body: "Figura de 4 notas: nota superior, nota real, nota inferior, nota real. El símbolo es una onda horizontal (~). Decora la nota principal con una pequeña vuelta alrededor.",
         highlight: true,
         staffExample: {
           notes: [
-            { keys: ["d/4"], duration: "16", annotations: ["↑"],  annotationColors: ["#6366f1"] },
-            { keys: ["c/4"], duration: "16", annotations: ["●"],  annotationColors: ["#374151"] },
-            { keys: ["b/3"], duration: "16", annotations: ["↓"],  annotationColors: ["#6366f1"] },
-            { keys: ["c/4"], duration: "16", annotations: ["●"],  annotationColors: ["#374151"] },
+            { keys: ["c/4"], duration: "h", ornament: "turn" },
+            { keys: ["c/4"], duration: "h", ornament: "turnInverted" },
           ],
           timeSignature: "",
-          caption: "Grupeto (~): Re–Do–Si–Do (sup.–real–inf.–real)",
+          caption: "Grupeto (~): Re–Do–Si–Do (superior) / Si–Do–Re–Do (invertido)",
         },
       },
       {
@@ -44,13 +66,25 @@ const ADORNO_THEORY: TheorySection[] = [
         body: "Alternancia muy rápida y continua entre la nota real y la nota superior durante toda la duración de la nota. El símbolo es 'tr' o 'tr~' escrito sobre la nota.",
         staffExample: {
           notes: [
-            { keys: ["c/4"], duration: "h", annotations: ["tr~"], annotationColors: ["#4338ca"] },
+            { keys: ["c/4"], duration: "h", ornament: "trill" },
+            { keys: ["c/4"], duration: "h", ornament: "trillh" },
           ],
           timeSignature: "",
-          caption: "Trino: Do alterna continuamente con Re durante toda la duración",
+          caption: "Trino: símbolo tr (corto) y tr~ con extensión (Do alterna con Re)",
         },
       },
-      { title: "Arpejo", body: "Las notas de un acorde se tocan sucesivamente de abajo a arriba en lugar de simultáneamente. El símbolo es una línea ondulada vertical al lado del acorde." },
+      {
+        title: "Arpejo",
+        body: "Las notas de un acorde se tocan sucesivamente de abajo a arriba en lugar de simultáneamente. El símbolo es una línea ondulada vertical al lado del acorde.",
+        staffExample: {
+          notes: [
+            { keys: ["c/4", "e/4", "g/4"], duration: "h", arpeggio: true },
+            { keys: ["c/4", "e/4", "g/4"], duration: "h" },
+          ],
+          timeSignature: "",
+          caption: "Arpejo (onda vertical): acorde Do mayor arpegiado vs simultáneo",
+        },
+      },
     ],
     table: {
       headers: ["Adorno", "Símbolo", "Descripción breve"],

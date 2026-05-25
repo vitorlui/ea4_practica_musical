@@ -7,12 +7,84 @@ const INTERVALOS_THEORY: TheorySection[] = [
   {
     id: "def",
     steps: [
-      { title: "Número del intervalo", body: "Cuenta las notas desde la nota inferior hasta la superior, incluidas ambas. Do→Sol: Do(1), Re(2), Mi(3), Fa(4), Sol(5) → 5ª." },
-      { title: "Calidad: mayores y menores", body: "Son mayores o menores: 2ª, 3ª, 6ª, 7ª. Mayor = más semitonos; menor = menos. Ej: 3ª mayor = 4 semitonos (Do-Mi); 3ª menor = 3 semitonos (Re-Fa)." },
-      { title: "Calidad: justos", body: "Son justos: 4ª, 5ª, 8ª. 4ª justa = 5st, 5ª justa = 7st, 8ª justa = 12st. Los intervalos justos no pueden ser mayores ni menores." },
-      { title: "Aumentado y disminuido", body: "Aumentado = 1 semitono más que mayor/justo. Disminuido = 1 semitono menos que menor/justo. Ej: 4ª aumentada = 6st (Do-Fa#); 5ª disminuida = 6st (Si-Fa)." },
-      { title: "Melódico vs armónico", body: "Melódico: las dos notas suenan una después de la otra (puede ser ascendente o descendente). Armónico: las dos notas suenan simultáneamente." },
-      { title: "Conjunto vs disjunto", body: "Conjunto: distancia de 2ª (grado conjunto, notas adyacentes). Disjunto: más de una 2ª (salto)." },
+      {
+        title: "Número del intervalo",
+        body: "Cuenta las notas desde la nota inferior hasta la superior, incluidas ambas. Do→Sol: Do(1), Re(2), Mi(3), Fa(4), Sol(5) → 5ª.",
+        staffExample: {
+          notes: [
+            { keys: ["c/4"], duration: "q", annotations: ["1-Do"], annotationColors: ["#4338ca"] },
+            { keys: ["d/4"], duration: "q", annotations: ["2-Re"], annotationColors: ["#6b7280"] },
+            { keys: ["e/4"], duration: "q", annotations: ["3-Mi"], annotationColors: ["#6b7280"] },
+            { keys: ["f/4"], duration: "q", annotations: ["4-Fa"], annotationColors: ["#6b7280"] },
+            { keys: ["g/4"], duration: "q", annotations: ["5-Sol"], annotationColors: ["#dc2626"] },
+          ],
+          timeSignature: "", width: 400, height: 140,
+          caption: "Do→Sol: contar 1-2-3-4-5 incluyendo ambas notas = 5ª",
+        },
+      },
+      {
+        title: "Calidad: mayores y menores",
+        body: "Son mayores o menores: 2ª, 3ª, 6ª, 7ª. Mayor = más semitonos; menor = menos. Ej: 3ª mayor = 4 semitonos (Do-Mi); 3ª menor = 3 semitonos (Re-Fa).",
+        staffExample: {
+          notes: [
+            { keys: ["c/4", "e/4"], duration: "h", annotations: ["3ªM(4st)"], annotationColors: ["#4338ca"] },
+            { keys: ["d/4", "f/4"], duration: "h", annotations: ["3ªm(3st)"], annotationColors: ["#dc2626"] },
+          ],
+          timeSignature: "", width: 280, height: 160,
+          caption: "3ª mayor Do-Mi (4 semitonos) vs 3ª menor Re-Fa (3 semitonos)",
+        },
+      },
+      {
+        title: "Calidad: justos",
+        body: "Son justos: 4ª, 5ª, 8ª. 4ª justa = 5st, 5ª justa = 7st, 8ª justa = 12st. Los intervalos justos no pueden ser mayores ni menores.",
+        staffExample: {
+          notes: [
+            { keys: ["c/4", "f/4"], duration: "h", annotations: ["4ª j(5st)"], annotationColors: ["#4338ca"] },
+            { keys: ["c/4", "g/4"], duration: "h", annotations: ["5ª j(7st)"], annotationColors: ["#2563eb"] },
+          ],
+          timeSignature: "", width: 280, height: 160,
+          caption: "4ª justa Do-Fa (5st) y 5ª justa Do-Sol (7st)",
+        },
+      },
+      {
+        title: "Aumentado y disminuido",
+        body: "Aumentado = 1 semitono más que mayor/justo. Disminuido = 1 semitono menos que menor/justo. Ej: 4ª aumentada = 6st (Do-Fa#); 5ª disminuida = 6st (Si-Fa).",
+        staffExample: {
+          notes: [
+            { keys: ["c/4", "f/4"], duration: "h", accidentals: [null, "#"], annotations: ["4ªA(6st)"], annotationColors: ["#7c3aed"] },
+            { keys: ["b/3", "f/4"], duration: "h", annotations: ["5ªd(6st)"], annotationColors: ["#dc2626"] },
+          ],
+          timeSignature: "", width: 280, height: 160,
+          caption: "4ª aumentada Do-Fa# = 5ª disminuida Si-Fa (ambas 6 semitonos: tritono)",
+        },
+      },
+      {
+        title: "Melódico vs armónico",
+        body: "Melódico: las dos notas suenan una después de la otra (ascendente o descendente). Armónico: las dos notas suenan simultáneamente.",
+        staffExample: {
+          notes: [
+            { keys: ["c/4"], duration: "q", annotations: ["Mel.↑"], annotationColors: ["#6b7280"] },
+            { keys: ["e/4"], duration: "q" },
+            { keys: ["c/4", "e/4"], duration: "h", annotations: ["Arm."], annotationColors: ["#4338ca"] },
+          ],
+          timeSignature: "", width: 340, height: 160,
+          caption: "3ª melódica (Do luego Mi) y 3ª armónica (Do+Mi simultáneos)",
+        },
+      },
+      {
+        title: "Conjunto vs disjunto",
+        body: "Conjunto: distancia de 2ª (grado conjunto, notas adyacentes). Disjunto: más de una 2ª (salto).",
+        staffExample: {
+          notes: [
+            { keys: ["c/4"], duration: "q", bottomAnnotations: ["Conj."], bottomAnnotationColors: ["#2563eb"] },
+            { keys: ["d/4"], duration: "q", bottomAnnotations: ["2ª"], bottomAnnotationColors: ["#2563eb"] },
+            { keys: ["e/4"], duration: "q", bottomAnnotations: ["Disj."], bottomAnnotationColors: ["#dc2626"] },
+            { keys: ["g/4"], duration: "q", bottomAnnotations: ["3ª"], bottomAnnotationColors: ["#dc2626"] },
+          ],
+          timeSignature: "", width: 340, height: 160,
+          caption: "Conjunto: Do→Re (2ª, grado). Disjunto: Mi→Sol (3ª, salto)",
+        },
+      },
       { title: "Simple vs compuesto", body: "Simple: hasta la 8ª inclusive. Compuesto: supera la octava (9ª, 10ª...). En EA4 se trabajan principalmente los simples." },
     ],
     table: {
