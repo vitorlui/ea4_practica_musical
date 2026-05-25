@@ -384,6 +384,16 @@ function CfgSection({ label, children }: { label: string; children: React.ReactN
   );
 }
 
+function resolveTransportCount(s: string): number {
+  if (s.includes("-")) {
+    const parts = s.split("-").map(Number);
+    const lo = parts[0] ?? 2;
+    const hi = parts[1] ?? 5;
+    return Math.floor(Math.random() * (hi - lo + 1)) + lo;
+  }
+  return Math.max(1, parseInt(s) || 3);
+}
+
 export default function ExamPage() {
   const [examData, setExamData] = useState<ExamData | null>(null);
   const [showSolution, setShowSolution] = useState(false);
@@ -393,7 +403,7 @@ export default function ExamPage() {
   const [syncMeters, setSyncMeters] = useState<string[]>([]);
 
   // Ex. 2 — Transport
-  const [transportCount, setTransportCount] = useState(2);
+  const [transportCount, setTransportCount] = useState("2-5");
   const [transportKeys, setTransportKeys] = useState<string[]>([]);
   const [transportIntervals, setTransportIntervals] = useState<string[]>([]);
 
@@ -415,7 +425,7 @@ export default function ExamPage() {
       date: new Date().toLocaleDateString("ca-ES"),
       studentName: "",
       syncopaConfig: { meters: syncMeters },
-      transportConfig: { count: transportCount, keys: transportKeys, intervals: transportIntervals },
+      transportConfig: { count: resolveTransportCount(transportCount), keys: transportKeys, intervals: transportIntervals },
       intervalsConfig: { qualities: intQualities },
       scalesConfig: { modes: scaleModes, scaleTypes },
       keySigConfig: { modes: ksModes, accidentalTypes: ksAccTypes },
@@ -477,15 +487,25 @@ export default function ExamPage() {
               </CfgSection>
 
               <CfgSection label="Ex. 2 — Transport">
-                <p className="text-xs text-gray-500">Nombre de melodíes</p>
-                <div className="flex gap-2">
-                  {[1, 2, 3].map(n => (
-                    <button key={n} type="button" onClick={() => setTransportCount(n)}
-                      className={`px-3 py-1 rounded border text-sm ${transportCount === n ? "bg-blue-600 text-white border-blue-600" : "border-gray-300 text-gray-700 hover:bg-gray-100"}`}>
-                      {n}
-                    </button>
-                  ))}
-                </div>
+                <p className="text-xs text-gray-500">Nombre de transposicions</p>
+                <CfgRadios
+                  name="transport-count"
+                  options={[
+                    { value: "2-3", label: "Aleatori 2–3" },
+                    { value: "2-4", label: "Aleatori 2–4" },
+                    { value: "2-5", label: "Aleatori 2–5" },
+                    { value: "2-8", label: "Aleatori 2–8" },
+                    { value: "2",   label: "Exacte: 2" },
+                    { value: "3",   label: "Exacte: 3" },
+                    { value: "4",   label: "Exacte: 4" },
+                    { value: "5",   label: "Exacte: 5" },
+                    { value: "6",   label: "Exacte: 6" },
+                    { value: "7",   label: "Exacte: 7" },
+                    { value: "8",   label: "Exacte: 8" },
+                  ]}
+                  value={transportCount}
+                  onChange={setTransportCount}
+                />
                 <p className="text-xs text-gray-500 mt-1">Tonalitat d'origen (buit = qualsevol)</p>
                 <CfgCheckboxes
                   options={[{ value: "C", label: "Do" }, { value: "G", label: "Sol" }, { value: "F", label: "Fa" }, { value: "Bb", label: "Si♭" }]}
