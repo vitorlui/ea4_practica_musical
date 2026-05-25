@@ -107,13 +107,16 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
 
         {/* ── 4. Intervals ───────────────────────────────── */}
         {exercise.type === "intervalos" && (
-          <VexFlowRenderer
-            notes={(data.notes as Parameters<typeof VexFlowRenderer>[0]["notes"]) ?? []}
-            keySignature="C"
-            timeSignature=""
-            width={900}
-            height={160}
-          />
+          <div className="overflow-x-auto">
+            <MultiMeasureRenderer
+              measures={(data.measures as MeasureData[]) ?? []}
+              keySignature={str(data, "keySignature")}
+              timeSignature={str(data, "timeSignature")}
+              measuresPerRow={6}
+              measureWidth={120}
+              rowHeight={160}
+            />
+          </div>
         )}
 
         {/* ── 5. Completar compàs ────────────────────────── */}
@@ -221,13 +224,16 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
           )}
 
           {exercise.type === "intervalos" && (
-            <VexFlowRenderer
-              notes={(sol.notes as Parameters<typeof VexFlowRenderer>[0]["notes"]) ?? []}
-              keySignature="C"
-              timeSignature=""
-              width={900}
-              height={220}
-            />
+            <div className="overflow-x-auto">
+              <MultiMeasureRenderer
+                measures={(sol.measures as MeasureData[]) ?? []}
+                keySignature={str(sol, "keySignature")}
+                timeSignature={str(sol, "timeSignature")}
+                measuresPerRow={6}
+                measureWidth={120}
+                rowHeight={180}
+              />
+            </div>
           )}
 
           {exercise.type === "completar_compas" && (

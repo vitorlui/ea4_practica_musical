@@ -785,29 +785,32 @@ function generateIntervalExercise(num: number, cfg: IntervalsConfig): ExamExerci
     bottomAnnotations?: string[];
     bottomAnnotationColors?: string[];
   };
-  const notes: NoteShape[] = [];
-  const solNotes: NoteShape[] = [];
+
+  const measures: { notes: NoteShape[] }[] = [];
+  const solMeasures: { notes: NoteShape[] }[] = [];
 
   for (const ex of six) {
-    const ascending = Math.random() > 0.5;
-    const [first, second] = ascending ? [ex.lower, ex.upper] : [ex.upper, ex.lower];
-    const fKey = noteToVexKey(first);
-    const sKey = noteToVexKey(second);
-    const fAcc = first.accidental ? [first.accidental] : undefined;
-    const sAcc = second.accidental ? [second.accidental] : undefined;
+    const lKey = noteToVexKey(ex.lower);
+    const uKey = noteToVexKey(ex.upper);
+    const lAcc = ex.lower.accidental ? [ex.lower.accidental] : undefined;
+    const uAcc = ex.upper.accidental ? [ex.upper.accidental] : undefined;
 
     const st = intervalSemitones(ex.number, ex.quality);
-    const annLabel = `${ex.label} ${ascending ? "↑" : "↓"}`;
     const stLabel = tonesLabel(st);
 
-    notes.push({ keys: [fKey], duration: "h", accidentals: fAcc });
-    notes.push({ keys: [sKey], duration: "h", accidentals: sAcc });
+    const lNote: NoteShape = { keys: [lKey], duration: "q", accidentals: lAcc };
+    const uNote: NoteShape = { keys: [uKey], duration: "q", accidentals: uAcc };
 
-    solNotes.push({ keys: [fKey], duration: "h", accidentals: fAcc });
-    solNotes.push({
-      keys: [sKey], duration: "h", accidentals: sAcc,
-      bottomAnnotations: [annLabel, stLabel],
-      bottomAnnotationColors: ["#1d4ed8", "#6b7280"],
+    measures.push({ notes: [lNote, uNote] });
+    solMeasures.push({
+      notes: [
+        lNote,
+        {
+          keys: [uKey], duration: "q", accidentals: uAcc,
+          annotations: [ex.label, stLabel],
+          annotationColors: ["#1d4ed8", "#6b7280"],
+        },
+      ],
     });
   }
 
@@ -816,8 +819,8 @@ function generateIntervalExercise(num: number, cfg: IntervalsConfig): ExamExerci
     number: num,
     title: "Intervals",
     instructions: "Analitza els següents intervals, escriu el nom i la seva qualificació.",
-    data: { notes },
-    solution: { notes: solNotes },
+    data: { measures, keySignature: "C", timeSignature: "2/4" },
+    solution: { measures: solMeasures, keySignature: "C", timeSignature: "2/4" },
   };
 }
 
