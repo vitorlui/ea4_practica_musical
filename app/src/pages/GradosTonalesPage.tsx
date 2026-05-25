@@ -9,7 +9,25 @@ const GRADOS_THEORY: TheorySection[] = [
   {
     id: "def",
     steps: [
-      { title: "¿Qué son los grados de la escala?", body: "Los siete grados de una escala reciben nombres según su función armónica. Se numeran con cifras romanas del I al VII a partir de la tónica." },
+      {
+        title: "¿Qué son los grados de la escala?",
+        body: "Los siete grados de una escala reciben nombres según su función armónica. Se numeran con cifras romanas del I al VII a partir de la tónica.",
+        staffExample: {
+          notes: [
+            { keys: ["c/4"], duration: "q", annotations: ["I"],   annotationColors: ["#4338ca"] },
+            { keys: ["d/4"], duration: "q", annotations: ["II"],  annotationColors: ["#6366f1"] },
+            { keys: ["e/4"], duration: "q", annotations: ["III"], annotationColors: ["#6366f1"] },
+            { keys: ["f/4"], duration: "q", annotations: ["IV"],  annotationColors: ["#6366f1"] },
+            { keys: ["g/4"], duration: "q", annotations: ["V"],   annotationColors: ["#dc2626"] },
+            { keys: ["a/4"], duration: "q", annotations: ["VI"],  annotationColors: ["#6366f1"] },
+            { keys: ["b/4"], duration: "q", annotations: ["VII"], annotationColors: ["#6366f1"] },
+          ],
+          timeSignature: "",
+          width: 480,
+          height: 140,
+          caption: "Escala de Do mayor — grados I a VII (V en rojo = dominante)",
+        },
+      },
       { title: "I — Tónica", body: "Nota que da nombre a la tonalidad. Es el punto de mayor reposo y estabilidad. También se llama VIII cuando aparece en la octava superior." },
       { title: "II — Supertónica", body: "Está un grado por encima de la tónica. Función secundaria; suele ir hacia la dominante o la subdominante." },
       { title: "III — Mediante", body: "Está a medio camino entre la tónica (I) y la dominante (V). Define si la tonalidad es mayor o menor (la 3ª mayor = modo mayor; la 3ª menor = modo menor)." },

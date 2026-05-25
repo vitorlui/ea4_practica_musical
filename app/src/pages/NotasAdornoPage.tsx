@@ -10,11 +10,46 @@ const ADORNO_THEORY: TheorySection[] = [
     id: "def",
     steps: [
       { title: "¿Qué son las notas de adorno?", body: "Las notas de adorno (ornamentos) son pequeñas notas o símbolos que decoran la melodía. No tienen valor rítmico propio (o lo toman de la nota real). Se usan para embellecer y expresar la melodía." },
-      { title: "Apoiatura", body: "Nota pequeña (corchea sin tachar) que precede a la nota real. Se coloca en parte fuerte y toma la mitad (o 2/3) del valor de la nota real. Produce tensión y resuelve por grado conjunto." },
+      {
+        title: "Apoiatura",
+        body: "Nota pequeña (corchea sin tachar) que precede a la nota real. Se coloca en parte fuerte y toma la mitad (o 2/3) del valor de la nota real. Produce tensión y resuelve por grado conjunto.",
+        staffExample: {
+          notes: [
+            { keys: ["d/4"], duration: "8", annotations: ["apo."], annotationColors: ["#6366f1"] },
+            { keys: ["c/4"], duration: "q" },
+          ],
+          timeSignature: "",
+          caption: "Apoiatura: nota pequeña Re → nota real Do",
+        },
+      },
       { title: "Acciaccatura (apoiatura breve)", body: "Nota pequeña tachada (corchea pequeña con una raya). Se interpreta muy brevemente, casi simultánea a la nota real. Es más rápida que la apoiatura." },
       { title: "Mordente", body: "Alternancia rápida (normalmente una vez) entre la nota real y la nota superior (mordente superior) o inferior (mordente inferior). El símbolo es una pequeña onda sobre la nota." },
-      { title: "Grupeto (~)", body: "Figura de 4 notas: nota superior, nota real, nota inferior, nota real. El símbolo es una onda horizontal (~). Decora la nota principal con una pequeña vuelta alrededor.", highlight: true },
-      { title: "Trino (tr~)", body: "Alternancia muy rápida y continua entre la nota real y la nota superior durante toda la duración de la nota. El símbolo es 'tr' o 'tr~' escrito sobre la nota." },
+      {
+        title: "Grupeto (~)",
+        body: "Figura de 4 notas: nota superior, nota real, nota inferior, nota real. El símbolo es una onda horizontal (~). Decora la nota principal con una pequeña vuelta alrededor.",
+        highlight: true,
+        staffExample: {
+          notes: [
+            { keys: ["d/4"], duration: "16", annotations: ["↑"],  annotationColors: ["#6366f1"] },
+            { keys: ["c/4"], duration: "16", annotations: ["●"],  annotationColors: ["#374151"] },
+            { keys: ["b/3"], duration: "16", annotations: ["↓"],  annotationColors: ["#6366f1"] },
+            { keys: ["c/4"], duration: "16", annotations: ["●"],  annotationColors: ["#374151"] },
+          ],
+          timeSignature: "",
+          caption: "Grupeto (~): Re–Do–Si–Do (sup.–real–inf.–real)",
+        },
+      },
+      {
+        title: "Trino (tr~)",
+        body: "Alternancia muy rápida y continua entre la nota real y la nota superior durante toda la duración de la nota. El símbolo es 'tr' o 'tr~' escrito sobre la nota.",
+        staffExample: {
+          notes: [
+            { keys: ["c/4"], duration: "h", annotations: ["tr~"], annotationColors: ["#4338ca"] },
+          ],
+          timeSignature: "",
+          caption: "Trino: Do alterna continuamente con Re durante toda la duración",
+        },
+      },
       { title: "Arpejo", body: "Las notas de un acorde se tocan sucesivamente de abajo a arriba en lugar de simultáneamente. El símbolo es una línea ondulada vertical al lado del acorde." },
     ],
     table: {

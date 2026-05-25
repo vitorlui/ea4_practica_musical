@@ -12,8 +12,34 @@ const TRANSPORTE_THEORY: TheorySection[] = [
       { title: "¿Qué es transportar?", body: "Transportar una melodía es reproducirla a una altura diferente. Los intervalos entre las notas se mantienen exactamente iguales; lo que cambia es la nota de partida." },
       { title: "Los intervalos internos no cambian", body: "Si la melodía original sube una 3ª mayor entre las notas 1 y 2, la melodía transportada también debe subir una 3ª mayor entre esas mismas posiciones." },
       { title: "Tipos de transporte", body: "Tonal: se transporta a una nueva tonalidad, cambiando la armadura. Cromático: se sube o baja cada nota el mismo número de semitonos sin cambiar la armadura (menos frecuente en EA4)." },
-      { title: "Proceso paso a paso", body: "1) Identifica el intervalo de transporte. 2) Aplica ese intervalo a cada nota de la melodía. 3) Ajusta las alteraciones para mantener la calidad exacta del intervalo. 4) Verifica el ritmo y el compás (no cambian)." },
-      { title: "Ejemplo: 3ª mayor ascendente", body: "Melodía original en Do mayor: Do-Re-Mi-Fa. Transportada una 3ª mayor ascendente (a Mi mayor): Mi-Fa#-Sol#-La. Cada nota sube 4 semitonos.", highlight: true },
+      {
+        title: "Proceso paso a paso",
+        body: "1) Identifica el intervalo de transporte. 2) Aplica ese intervalo a cada nota de la melodía. 3) Ajusta las alteraciones para mantener la calidad exacta del intervalo. 4) Verifica el ritmo y el compás (no cambian).",
+        staffExample: {
+          notes: [
+            { keys: ["c/4"], duration: "q", annotations: ["Do"],  annotationColors: ["#4338ca"] },
+            { keys: ["e/4"], duration: "q", annotations: ["Mi"],  annotationColors: ["#4338ca"] },
+            { keys: ["g/4"], duration: "q", annotations: ["Sol"], annotationColors: ["#4338ca"] },
+          ],
+          timeSignature: "3/4",
+          caption: "Original en Do mayor: Do–Mi–Sol",
+        },
+      },
+      {
+        title: "Ejemplo: 4ª justa ascendente",
+        body: "Melodía original Do–Mi–Sol transportada una 4ª justa (5 semitonos) → Fa–La–Do. Cada nota sube 5 semitonos. La armadura cambia a Fa mayor (1 bemol).",
+        highlight: true,
+        staffExample: {
+          notes: [
+            { keys: ["f/4"], duration: "q", annotations: ["Fa"],  annotationColors: ["#dc2626"] },
+            { keys: ["a/4"], duration: "q", annotations: ["La"],  annotationColors: ["#dc2626"] },
+            { keys: ["c/5"], duration: "q", annotations: ["Do"],  annotationColors: ["#dc2626"] },
+          ],
+          timeSignature: "3/4",
+          keySignature: "F",
+          caption: "Transportado a Fa mayor (4ª justa ↑): Fa–La–Do",
+        },
+      },
     ],
     table: {
       headers: ["Intervalo de transporte", "Semitonos", "Ejemplo (desde Do)"],
