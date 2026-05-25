@@ -324,13 +324,13 @@ export default function SyncopationPage() {
         {showSolution && (
           <Card title="Solució">
             <ul className="space-y-1 text-sm">
-              {exercise.beatTypes.map((bt, i) => (
+              {correctLabels.map((label, i) => (
                 <li key={i} className="flex gap-3">
                   <span className="text-gray-400 w-20">Figura {i + 1}:</span>
-                  <span className="font-medium capitalize">
-                    {bt}
-                    {bt === "sincopa" && <span className="ml-1 text-purple-600 font-bold">&gt;</span>}
-                    {bt === "contratiempo" && <span className="ml-1 text-orange-600 font-bold">+</span>}
+                  <span className="font-medium">
+                    {BEAT_FULL_NAME[label]}
+                    {label === "S" && <span className="ml-1 text-purple-600 font-bold">&gt;</span>}
+                    {label === "C" && <span className="ml-1 text-orange-600 font-bold">+</span>}
                   </span>
                 </li>
               ))}

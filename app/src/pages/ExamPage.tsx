@@ -341,24 +341,6 @@ function CfgCheckboxes({ options, value, onChange }: {
   );
 }
 
-function CfgRadios({ options, value, name, onChange }: {
-  options: { value: string; label: string }[];
-  value: string;
-  name: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div className="flex flex-wrap gap-3">
-      {options.map(opt => (
-        <label key={opt.value} className="flex items-center gap-1 cursor-pointer">
-          <input type="radio" name={name} value={opt.value} checked={value === opt.value} onChange={() => onChange(opt.value)} />
-          <span>{opt.label}</span>
-        </label>
-      ))}
-    </div>
-  );
-}
-
 function CfgSection({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="border-t border-gray-200 pt-3 first:border-t-0 first:pt-0">
