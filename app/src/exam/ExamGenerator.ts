@@ -704,6 +704,27 @@ const INTERVAL_SEQUENCES: NoteSeq[] = [
   },
 ];
 
+// ── Interval label helpers ────────────────────────────────────────────────────
+
+const INTERVAL_SEMITONES: Record<string, number> = {
+  "2ª menor": 1, "2ª major": 2,
+  "3ª menor": 3, "3ª major": 4,
+  "4ª justa": 5, "4ª aug":   6,
+  "5ª dim":   6, "5ª justa": 7,
+  "6ª menor": 8, "6ª major": 9,
+  "7ª menor": 10, "7ª major": 11,
+  "8ª justa": 12,
+};
+
+function tonesLabel(label: string): string {
+  const st = INTERVAL_SEMITONES[label] ?? 0;
+  const t = Math.floor(st / 2);
+  const s = st % 2;
+  if (t === 0) return `${s}ST`;
+  if (s === 0) return `${t}T`;
+  return `${t}T + ${s}ST`;
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const SINCOPA_SYMBOL: Record<string, string> = {
@@ -767,10 +788,13 @@ function generateIntervalExercise(num: number, _cfg: IntervalsConfig): ExamExerc
   const solutionNotes = seq.keys.map((key, i) => {
     if (i === 0) return { keys: [key], duration: "q" };
     const iv = seq.intervals[i - 1];
+    const tLabel = tonesLabel(iv.label);
+    const dirLabel = iv.ascending ? "ASC" : "DESC";
+    const lines = [iv.label, tLabel, dirLabel];
     if (iv.ascending) {
-      return { keys: [key], duration: "q", annotations: [iv.label], annotationColors: ["#1d4ed8"] };
+      return { keys: [key], duration: "q", annotations: lines, annotationColors: ["#1d4ed8", "#1d4ed8", "#1d4ed8"] };
     } else {
-      return { keys: [key], duration: "q", bottomAnnotations: [iv.label], bottomAnnotationColors: ["#c2410c"] };
+      return { keys: [key], duration: "q", bottomAnnotations: lines, bottomAnnotationColors: ["#c2410c", "#c2410c", "#c2410c"] };
     }
   });
 

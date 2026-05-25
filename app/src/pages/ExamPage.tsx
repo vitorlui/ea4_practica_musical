@@ -229,9 +229,9 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
                 notes={(sol.notes as Parameters<typeof VexFlowRenderer>[0]["notes"]) ?? []}
                 keySignature="C"
                 timeSignature=""
-                staveY={50}
+                staveY={80}
                 width={850}
-                height={220}
+                height={270}
               />
             </div>
           )}
