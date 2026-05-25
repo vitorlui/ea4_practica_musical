@@ -78,18 +78,16 @@ export function Sidebar() {
                 <button
                   onClick={() => setExpanded(isOpen ? null : item.to)}
                   className={[
-                    LINK_BASE, "w-full text-left justify-between",
+                    "w-full text-left px-4 py-2.5 text-sm font-medium transition-colors flex items-center gap-3",
                     isCurrentPath ? "text-indigo-700 bg-indigo-50" : IDLE_CLS,
                   ].join(" ")}
                 >
-                  <span className="flex items-center gap-3 min-w-0">
-                    <span className="shrink-0">{item.icon}</span>
-                    <span className="leading-tight truncate">{item.label}</span>
-                  </span>
-                  <span className="flex items-center gap-1.5 shrink-0 ml-1">
+                  <span className="shrink-0 text-base">{item.icon}</span>
+                  <span className="flex-1 min-w-0">
+                    <span className="block leading-tight">{item.label}</span>
                     <span className="text-[10px] text-gray-400 font-normal">{item.unitat}</span>
-                    <span className="text-gray-400 text-xs">{isOpen ? "▾" : "▸"}</span>
                   </span>
+                  <span className="shrink-0 text-gray-400 text-xs ml-1">{isOpen ? "▾" : "▸"}</span>
                 </button>
 
                 {isOpen && (
