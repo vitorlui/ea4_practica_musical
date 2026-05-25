@@ -283,7 +283,7 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
                   timeSignature=""
                   clef="treble"
                   width={720}
-                  height={120}
+                  height={160}
                   staveY={30}
                 />
               </div>

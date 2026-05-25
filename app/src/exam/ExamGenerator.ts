@@ -608,44 +608,202 @@ interface NotasExtranyes {
 }
 
 const NOTAS_EXTRANYAS_FRAGMENTS: NotasExtranyes[] = [
+  // ── Fragment 1: Do major, 4/4 — corcheas i semicorchees ─────────────────────
   {
     timeSignature: "4/4", keySignature: "C",
     measures: [
-      { notes: [{ keys: ["c/4"], duration: "q" }, { keys: ["d/4"], duration: "q" }, { keys: ["e/4"], duration: "h" }] },
-      { notes: [{ keys: ["e/4"], duration: "q" }, { keys: ["f/4"], duration: "q" }, { keys: ["g/4"], duration: "h" }] },
-      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }, { keys: ["e/4"], duration: "q" }] },
+      // M1 · C4(q) D4(8) E4(8) G4(q) E4(q)  [4+2+2+4+4=16 ✓]
+      { notes: [
+        { keys: ["c/4"], duration: "q" },
+        { keys: ["d/4"], duration: "8" },
+        { keys: ["e/4"], duration: "8" },
+        { keys: ["g/4"], duration: "q" },
+        { keys: ["e/4"], duration: "q" },
+      ]},
+      // M2 · F4(q) E4(16) F4(16) G4(8) F4(q) A4(q)  [4+1+1+2+4+4=16 ✓]
+      { notes: [
+        { keys: ["f/4"], duration: "q" },
+        { keys: ["e/4"], duration: "16" },
+        { keys: ["f/4"], duration: "16" },
+        { keys: ["g/4"], duration: "8" },
+        { keys: ["f/4"], duration: "q" },
+        { keys: ["a/4"], duration: "q" },
+      ]},
+      // M3 · G4(8) A4(16) G4(16) F4(8) E4(q) D4(8) C4(q)  [2+1+1+2+4+2+4=16 ✓]
+      { notes: [
+        { keys: ["g/4"], duration: "8" },
+        { keys: ["a/4"], duration: "16" },
+        { keys: ["g/4"], duration: "16" },
+        { keys: ["f/4"], duration: "8" },
+        { keys: ["e/4"], duration: "q" },
+        { keys: ["d/4"], duration: "8" },
+        { keys: ["c/4"], duration: "q" },
+      ]},
+      // M4 · C4(w)
       { notes: [{ keys: ["c/4"], duration: "w" }] },
     ],
     annotatedMeasures: [
-      { notes: [{ keys: ["c/4"], duration: "q" }, { keys: ["d/4"], duration: "q", annotations: ["NP"], annotationColors: ["#dc2626"] }, { keys: ["e/4"], duration: "h" }] },
-      { notes: [{ keys: ["e/4"], duration: "q" }, { keys: ["f/4"], duration: "q", annotations: ["NP"], annotationColors: ["#dc2626"] }, { keys: ["g/4"], duration: "h" }] },
-      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "q", annotations: ["B"], annotationColors: ["#7c3aed"] }, { keys: ["g/4"], duration: "q" }, { keys: ["e/4"], duration: "q" }] },
+      { notes: [
+        { keys: ["c/4"], duration: "q" },
+        { keys: ["d/4"], duration: "8", annotations: ["NP"], annotationColors: ["#dc2626"] },
+        { keys: ["e/4"], duration: "8" },
+        { keys: ["g/4"], duration: "q" },
+        { keys: ["e/4"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["f/4"], duration: "q" },
+        { keys: ["e/4"], duration: "16", annotations: ["B"], annotationColors: ["#7c3aed"] },
+        { keys: ["f/4"], duration: "16" },
+        { keys: ["g/4"], duration: "8" },
+        { keys: ["f/4"], duration: "q" },
+        { keys: ["a/4"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["g/4"], duration: "8" },
+        { keys: ["a/4"], duration: "16", annotations: ["B"], annotationColors: ["#7c3aed"] },
+        { keys: ["g/4"], duration: "16" },
+        { keys: ["f/4"], duration: "8", annotations: ["NP"], annotationColors: ["#dc2626"] },
+        { keys: ["e/4"], duration: "q" },
+        { keys: ["d/4"], duration: "8" },
+        { keys: ["c/4"], duration: "q" },
+      ]},
       { notes: [{ keys: ["c/4"], duration: "w" }] },
     ],
     explanations: [
-      "NP (nota de pas): Re4 (compàs 1) — passa per grau conjunt entre Do4 i Mi4",
-      "NP (nota de pas): Fa4 (compàs 2) — passa per grau conjunt entre Mi4 i Sol4",
-      "B (bordadura): La4 (compàs 3) — ornament superior de Sol4 que retorna al mateix grau",
+      "NP (nota de pas): Re4 (compàs 1) — connecta Do4 i Mi4 per grau conjunt ascendent",
+      "B (bordadura): Mi4 (compàs 2) — grau inferior de Fa4; surt un grau i retorna immediatament",
+      "B (bordadura): La4 (compàs 3) — grau superior de Sol4; surt un grau i retorna immediatament",
+      "NP (nota de pas): Fa4 (compàs 3) — connecta Sol4 i Mi4 per grau conjunt descendent",
     ],
   },
+
+  // ── Fragment 2: Sol major, 3/4 — semicorchees amb bordadures dobles ─────────
   {
     timeSignature: "3/4", keySignature: "G",
     measures: [
-      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "8" }, { keys: ["g/4"], duration: "8" }, { keys: ["b/4"], duration: "q" }] },
-      { notes: [{ keys: ["d/5"], duration: "h" }, { keys: ["c/5"], duration: "q" }] },
-      { notes: [{ keys: ["b/4"], duration: "q" }, { keys: ["c/5"], duration: "8" }, { keys: ["b/4"], duration: "8" }, { keys: ["a/4"], duration: "q" }] },
+      // M1 · G4(q) A4(8) G4(8) B4(q)  [4+2+2+4=12 ✓]
+      { notes: [
+        { keys: ["g/4"], duration: "q" },
+        { keys: ["a/4"], duration: "8" },
+        { keys: ["g/4"], duration: "8" },
+        { keys: ["b/4"], duration: "q" },
+      ]},
+      // M2 · D5(q) C5(16) D5(16) E5(8) D5(q)  [4+1+1+2+4=12 ✓]
+      { notes: [
+        { keys: ["d/5"], duration: "q" },
+        { keys: ["c/5"], duration: "16" },
+        { keys: ["d/5"], duration: "16" },
+        { keys: ["e/5"], duration: "8" },
+        { keys: ["d/5"], duration: "q" },
+      ]},
+      // M3 · B4(8) C5(16) B4(16) A4(8) G4(8) F#4(q)  [2+1+1+2+2+4=12 ✓]
+      { notes: [
+        { keys: ["b/4"], duration: "8" },
+        { keys: ["c/5"], duration: "16" },
+        { keys: ["b/4"], duration: "16" },
+        { keys: ["a/4"], duration: "8" },
+        { keys: ["g/4"], duration: "8" },
+        { keys: ["f#/4"], duration: "q" },
+      ]},
+      // M4 · G4(hd)
       { notes: [{ keys: ["g/4"], duration: "h", dots: 1 }] },
     ],
     annotatedMeasures: [
-      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "8", annotations: ["B"], annotationColors: ["#7c3aed"] }, { keys: ["g/4"], duration: "8" }, { keys: ["b/4"], duration: "q" }] },
-      { notes: [{ keys: ["d/5"], duration: "h" }, { keys: ["c/5"], duration: "q", annotations: ["NP"], annotationColors: ["#dc2626"] }] },
-      { notes: [{ keys: ["b/4"], duration: "q" }, { keys: ["c/5"], duration: "8", annotations: ["B"], annotationColors: ["#7c3aed"] }, { keys: ["b/4"], duration: "8" }, { keys: ["a/4"], duration: "q" }] },
+      { notes: [
+        { keys: ["g/4"], duration: "q" },
+        { keys: ["a/4"], duration: "8", annotations: ["B"], annotationColors: ["#7c3aed"] },
+        { keys: ["g/4"], duration: "8" },
+        { keys: ["b/4"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["d/5"], duration: "q" },
+        { keys: ["c/5"], duration: "16", annotations: ["B"], annotationColors: ["#7c3aed"] },
+        { keys: ["d/5"], duration: "16" },
+        { keys: ["e/5"], duration: "8", annotations: ["B"], annotationColors: ["#7c3aed"] },
+        { keys: ["d/5"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["b/4"], duration: "8" },
+        { keys: ["c/5"], duration: "16", annotations: ["B"], annotationColors: ["#7c3aed"] },
+        { keys: ["b/4"], duration: "16" },
+        { keys: ["a/4"], duration: "8", annotations: ["NP"], annotationColors: ["#dc2626"] },
+        { keys: ["g/4"], duration: "8" },
+        { keys: ["f#/4"], duration: "q" },
+      ]},
       { notes: [{ keys: ["g/4"], duration: "h", dots: 1 }] },
     ],
     explanations: [
-      "B (bordadura): La4 (compàs 1) — ornament superior de Sol4",
-      "NP (nota de pas): Do5 (compàs 2) — nota de pas descendent entre Re5 i Si4",
-      "B (bordadura): Do5 (compàs 3) — ornament superior de Si4",
+      "B (bordadura): La4 (compàs 1) — grau superior de Sol4; surt i retorna immediatament",
+      "B (bordadura): Do5 (compàs 2) — grau inferior de Re5; surt i retorna immediatament",
+      "B (bordadura): Mi5 (compàs 2) — grau superior de Re5; surt i retorna immediatament",
+      "B (bordadura): Do5 (compàs 3) — grau superior de Si4; surt i retorna immediatament",
+      "NP (nota de pas): La4 (compàs 3) — connecta Si4 i Sol4 per grau conjunt descendent",
+    ],
+  },
+
+  // ── Fragment 3: Fa major, 4/4 — semicorchees amb doble bordadura ─────────────
+  {
+    timeSignature: "4/4", keySignature: "F",
+    measures: [
+      // M1 · F4(q) G4(8) A4(8) Bb4(q) A4(q)  [4+2+2+4+4=16 ✓]
+      { notes: [
+        { keys: ["f/4"], duration: "q" },
+        { keys: ["g/4"], duration: "8" },
+        { keys: ["a/4"], duration: "8" },
+        { keys: ["bb/4"], duration: "q" },
+        { keys: ["a/4"], duration: "q" },
+      ]},
+      // M2 · C5(h) Bb4(8) A4(8) G4(q)  [8+2+2+4=16 ✓]
+      { notes: [
+        { keys: ["c/5"], duration: "h" },
+        { keys: ["bb/4"], duration: "8" },
+        { keys: ["a/4"], duration: "8" },
+        { keys: ["g/4"], duration: "q" },
+      ]},
+      // M3 · F4(q) G4(16) F4(16) E4(16) F4(16) A4(q) C5(q)  [4+1+1+1+1+4+4=16 ✓]
+      { notes: [
+        { keys: ["f/4"], duration: "q" },
+        { keys: ["g/4"], duration: "16" },
+        { keys: ["f/4"], duration: "16" },
+        { keys: ["e/4"], duration: "16" },
+        { keys: ["f/4"], duration: "16" },
+        { keys: ["a/4"], duration: "q" },
+        { keys: ["c/5"], duration: "q" },
+      ]},
+      // M4 · F4(w)
+      { notes: [{ keys: ["f/4"], duration: "w" }] },
+    ],
+    annotatedMeasures: [
+      { notes: [
+        { keys: ["f/4"], duration: "q" },
+        { keys: ["g/4"], duration: "8", annotations: ["NP"], annotationColors: ["#dc2626"] },
+        { keys: ["a/4"], duration: "8" },
+        { keys: ["bb/4"], duration: "q", annotations: ["B"], annotationColors: ["#7c3aed"] },
+        { keys: ["a/4"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["c/5"], duration: "h" },
+        { keys: ["bb/4"], duration: "8", annotations: ["NP"], annotationColors: ["#dc2626"] },
+        { keys: ["a/4"], duration: "8" },
+        { keys: ["g/4"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["f/4"], duration: "q" },
+        { keys: ["g/4"], duration: "16", annotations: ["B"], annotationColors: ["#7c3aed"] },
+        { keys: ["f/4"], duration: "16" },
+        { keys: ["e/4"], duration: "16", annotations: ["B"], annotationColors: ["#7c3aed"] },
+        { keys: ["f/4"], duration: "16" },
+        { keys: ["a/4"], duration: "q" },
+        { keys: ["c/5"], duration: "q" },
+      ]},
+      { notes: [{ keys: ["f/4"], duration: "w" }] },
+    ],
+    explanations: [
+      "NP (nota de pas): Sol4 (compàs 1) — connecta Fa4 i La4 per grau conjunt ascendent",
+      "B (bordadura): Si♭4 (compàs 1) — grau superior de La4; surt un grau i retorna immediatament",
+      "NP (nota de pas): Si♭4 (compàs 2) — connecta Do5 i La4 per grau conjunt descendent",
+      "B (bordadura): Sol4 (compàs 3) — grau superior de Fa4; surt un grau i retorna immediatament",
+      "B (bordadura): Mi4 (compàs 3) — grau inferior de Fa4; surt un grau i retorna immediatament",
     ],
   },
 ];
