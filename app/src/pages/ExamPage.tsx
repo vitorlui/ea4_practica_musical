@@ -108,13 +108,13 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
         {/* ── 4. Intervals ───────────────────────────────── */}
         {exercise.type === "intervalos" && (
           <div className="overflow-x-auto">
-            <MultiMeasureRenderer
-              measures={(data.measures as MeasureData[]) ?? []}
-              keySignature={str(data, "keySignature")}
-              timeSignature={str(data, "timeSignature")}
-              measuresPerRow={6}
-              measureWidth={120}
-              rowHeight={160}
+            <VexFlowRenderer
+              notes={(data.notes as Parameters<typeof VexFlowRenderer>[0]["notes"]) ?? []}
+              keySignature="C"
+              timeSignature=""
+              staveY={50}
+              width={850}
+              height={160}
             />
           </div>
         )}
@@ -225,13 +225,13 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
 
           {exercise.type === "intervalos" && (
             <div className="overflow-x-auto">
-              <MultiMeasureRenderer
-                measures={(sol.measures as MeasureData[]) ?? []}
-                keySignature={str(sol, "keySignature")}
-                timeSignature={str(sol, "timeSignature")}
-                measuresPerRow={6}
-                measureWidth={120}
-                rowHeight={180}
+              <VexFlowRenderer
+                notes={(sol.notes as Parameters<typeof VexFlowRenderer>[0]["notes"]) ?? []}
+                keySignature="C"
+                timeSignature=""
+                staveY={50}
+                width={850}
+                height={220}
               />
             </div>
           )}

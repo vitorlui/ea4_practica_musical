@@ -1,6 +1,5 @@
 import { SYNCOPATION_EXERCISES } from "../data/syncopationExercises";
 import { classifyMeasures } from "../utils/beatTypeClassifier";
-import { INTERVAL_EXERCISES, noteToVexKey } from "../data/intervalExercises";
 import { SCALE_EXERCISES } from "../data/scaleExercises";
 import { KEY_SIGNATURE_EXERCISES } from "../data/keySignatureExercises";
 import { buildScale, noteToSpanish } from "../theory/scales";
@@ -625,25 +624,85 @@ const NOTAS_EXTRANYAS_FRAGMENTS: NotasExtranyes[] = [
   },
 ];
 
-// ── Interval helpers ─────────────────────────────────────────────────────────
+// ── Interval sequences: 9-note chains with 8 consecutive intervals ────────────
 
-function intervalSemitones(number: number, quality: string): number {
-  const base: Record<number, number> = { 1:0, 2:2, 3:4, 4:5, 5:7, 6:9, 7:11, 8:12 };
-  const b = base[number] ?? 0;
-  if (quality === "justa" || quality === "mayor") return b;
-  if (quality === "menor") return b - 1;
-  if (quality === "aumentada") return b + 1;
-  // disminuida: perfect intervals -1, major/minor intervals -2
-  return (number === 1 || number === 4 || number === 5 || number === 8) ? b - 1 : b - 2;
+interface NoteSeq {
+  keys: string[];
+  intervals: { label: string; ascending: boolean }[];
 }
 
-function tonesLabel(st: number): string {
-  const t = Math.floor(st / 2);
-  const s = st % 2;
-  if (t === 0) return `${s} ST`;
-  if (s === 0) return `${t} T`;
-  return `${t} T + ${s} ST`;
-}
+const INTERVAL_SEQUENCES: NoteSeq[] = [
+  // Do–Mi–Re–Sol–Mi–La–Sol–Si–Re5
+  {
+    keys: ["c/4","e/4","d/4","g/4","e/4","a/4","g/4","b/4","d/5"],
+    intervals: [
+      { label: "3ª major", ascending: true  },
+      { label: "2ª major", ascending: false },
+      { label: "4ª justa", ascending: true  },
+      { label: "3ª menor", ascending: false },
+      { label: "4ª justa", ascending: true  },
+      { label: "2ª major", ascending: false },
+      { label: "3ª major", ascending: true  },
+      { label: "3ª menor", ascending: true  },
+    ],
+  },
+  // Mi–Si–Sol–Re5–Si–Mi–La–Do5–Mi5
+  {
+    keys: ["e/4","b/4","g/4","d/5","b/4","e/4","a/4","c/5","e/5"],
+    intervals: [
+      { label: "5ª justa", ascending: true  },
+      { label: "3ª major", ascending: false },
+      { label: "5ª justa", ascending: true  },
+      { label: "3ª menor", ascending: false },
+      { label: "5ª justa", ascending: false },
+      { label: "4ª justa", ascending: true  },
+      { label: "3ª menor", ascending: true  },
+      { label: "3ª major", ascending: true  },
+    ],
+  },
+  // Do–La–Do5–Mi5–Do5–Sol–Si–Re5–La
+  {
+    keys: ["c/4","a/4","c/5","e/5","c/5","g/4","b/4","d/5","a/4"],
+    intervals: [
+      { label: "6ª major", ascending: true  },
+      { label: "3ª menor", ascending: true  },
+      { label: "3ª major", ascending: true  },
+      { label: "3ª major", ascending: false },
+      { label: "4ª justa", ascending: false },
+      { label: "3ª major", ascending: true  },
+      { label: "3ª menor", ascending: true  },
+      { label: "4ª justa", ascending: false },
+    ],
+  },
+  // Fa–La–Mi–Si–Sol–Re5–La–Do5–Fa
+  {
+    keys: ["f/4","a/4","e/4","b/4","g/4","d/5","a/4","c/5","f/4"],
+    intervals: [
+      { label: "3ª major", ascending: true  },
+      { label: "4ª justa", ascending: false },
+      { label: "5ª justa", ascending: true  },
+      { label: "3ª major", ascending: false },
+      { label: "5ª justa", ascending: true  },
+      { label: "4ª justa", ascending: false },
+      { label: "3ª menor", ascending: true  },
+      { label: "5ª justa", ascending: false },
+    ],
+  },
+  // Do–Fa–Re–Sol–Mi–Do5–La–Mi5–Do5
+  {
+    keys: ["c/4","f/4","d/4","g/4","e/4","c/5","a/4","e/5","c/5"],
+    intervals: [
+      { label: "4ª justa", ascending: true  },
+      { label: "3ª menor", ascending: false },
+      { label: "4ª justa", ascending: true  },
+      { label: "3ª menor", ascending: false },
+      { label: "6ª menor", ascending: true  },
+      { label: "3ª menor", ascending: false },
+      { label: "5ª justa", ascending: true  },
+      { label: "3ª major", ascending: false },
+    ],
+  },
+];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -699,6 +758,31 @@ function generateSyncopaExercise(num: number, cfg: SyncopaConfig): ExamExercise 
 
 // Default interval pair used when no filter is configured
 const DEFAULT_INTERVAL_PAIR = ["2ª major ↑", "2ª major ↓"];
+
+function generateIntervalExercise(num: number, _cfg: IntervalsConfig): ExamExercise {
+  const seq = INTERVAL_SEQUENCES[Math.floor(Math.random() * INTERVAL_SEQUENCES.length)];
+
+  const questionNotes = seq.keys.map(key => ({ keys: [key], duration: "q" }));
+
+  const solutionNotes = seq.keys.map((key, i) => {
+    if (i === 0) return { keys: [key], duration: "q" };
+    const iv = seq.intervals[i - 1];
+    if (iv.ascending) {
+      return { keys: [key], duration: "q", annotations: [iv.label], annotationColors: ["#1d4ed8"] };
+    } else {
+      return { keys: [key], duration: "q", bottomAnnotations: [iv.label], bottomAnnotationColors: ["#c2410c"] };
+    }
+  });
+
+  return {
+    type: "intervalos",
+    number: num,
+    title: "Intervals",
+    instructions: "Analitza els intervals consecutius entre les notes. Escriu el nom i qualificació de cada interval.",
+    data: { notes: questionNotes },
+    solution: { notes: solutionNotes },
+  };
+}
 
 function generateTransportExercise(num: number, tc: TransportConfig): ExamExercise {
   // Pick source fragment
@@ -765,62 +849,6 @@ function generateMeterKeyExercise(num: number): ExamExercise {
       dominantLabel: frag.dominantLabel,
       leadingToneLabel: frag.leadingToneLabel,
     },
-  };
-}
-
-function generateIntervalExercise(num: number, cfg: IntervalsConfig): ExamExercise {
-  const pool = filterOrAll(INTERVAL_EXERCISES, f =>
-    cfg.qualities.length === 0 || cfg.qualities.includes(f.quality),
-  );
-
-  // Pick 6 exercises (with repetition if pool < 6)
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
-  const picks: typeof pool = [];
-  while (picks.length < 6) picks.push(...shuffled);
-  const six = picks.slice(0, 6);
-
-  type NoteShape = {
-    keys: string[]; duration: string;
-    accidentals?: (string | null)[];
-    bottomAnnotations?: string[];
-    bottomAnnotationColors?: string[];
-  };
-
-  const measures: { notes: NoteShape[] }[] = [];
-  const solMeasures: { notes: NoteShape[] }[] = [];
-
-  for (const ex of six) {
-    const lKey = noteToVexKey(ex.lower);
-    const uKey = noteToVexKey(ex.upper);
-    const lAcc = ex.lower.accidental ? [ex.lower.accidental] : undefined;
-    const uAcc = ex.upper.accidental ? [ex.upper.accidental] : undefined;
-
-    const st = intervalSemitones(ex.number, ex.quality);
-    const stLabel = tonesLabel(st);
-
-    const lNote: NoteShape = { keys: [lKey], duration: "q", accidentals: lAcc };
-    const uNote: NoteShape = { keys: [uKey], duration: "q", accidentals: uAcc };
-
-    measures.push({ notes: [lNote, uNote] });
-    solMeasures.push({
-      notes: [
-        lNote,
-        {
-          keys: [uKey], duration: "q", accidentals: uAcc,
-          annotations: [ex.label, stLabel],
-          annotationColors: ["#1d4ed8", "#6b7280"],
-        },
-      ],
-    });
-  }
-
-  return {
-    type: "intervalos",
-    number: num,
-    title: "Intervals",
-    instructions: "Analitza els següents intervals, escriu el nom i la seva qualificació.",
-    data: { measures, keySignature: "C", timeSignature: "2/4" },
-    solution: { measures: solMeasures, keySignature: "C", timeSignature: "2/4" },
   };
 }
 

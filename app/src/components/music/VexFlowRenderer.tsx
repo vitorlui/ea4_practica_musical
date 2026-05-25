@@ -29,6 +29,7 @@ interface VexFlowRendererProps {
   clef?: "treble" | "bass";
   width?: number;
   height?: number;
+  staveY?: number;         // vertical offset of staff within SVG (default 20)
   className?: string;
 }
 
@@ -46,6 +47,7 @@ export function VexFlowRenderer({
   clef = "treble",
   width = 500,
   height = 150,
+  staveY = 20,
   className = "",
 }: VexFlowRendererProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -61,7 +63,6 @@ export function VexFlowRenderer({
       const context = renderer.getContext();
 
       const staveX = 10;
-      const staveY = 20;
       const staveWidth = width - 20;
 
       const stave = new Stave(staveX, staveY, staveWidth);
@@ -121,7 +122,7 @@ export function VexFlowRenderer({
     } catch (err) {
       console.error("VexFlow render error:", err);
     }
-  }, [notes, timeSignature, keySignature, clef, width, height]);
+  }, [notes, timeSignature, keySignature, clef, width, height, staveY]);
 
   return (
     <div
