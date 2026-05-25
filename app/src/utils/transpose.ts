@@ -9,14 +9,14 @@ export interface TransportInterval {
 }
 
 export const TRANSPORT_INTERVALS: TransportInterval[] = [
-  { label: "2ª major ↑",  degrees: 1, semitones: 2, direction:  1 },
-  { label: "2ª major ↓",  degrees: 1, semitones: 2, direction: -1 },
-  { label: "2ª menor ↑",  degrees: 1, semitones: 1, direction:  1 },
-  { label: "2ª menor ↓",  degrees: 1, semitones: 1, direction: -1 },
-  { label: "3ª major ↑",  degrees: 2, semitones: 4, direction:  1 },
-  { label: "3ª major ↓",  degrees: 2, semitones: 4, direction: -1 },
-  { label: "3ª menor ↑",  degrees: 2, semitones: 3, direction:  1 },
-  { label: "3ª menor ↓",  degrees: 2, semitones: 3, direction: -1 },
+  { label: "2ª major superior",  degrees: 1, semitones: 2, direction:  1 },
+  { label: "2ª major inferior",  degrees: 1, semitones: 2, direction: -1 },
+  { label: "2ª menor superior",  degrees: 1, semitones: 1, direction:  1 },
+  { label: "2ª menor inferior",  degrees: 1, semitones: 1, direction: -1 },
+  { label: "3ª major superior",  degrees: 2, semitones: 4, direction:  1 },
+  { label: "3ª major inferior",  degrees: 2, semitones: 4, direction: -1 },
+  { label: "3ª menor superior",  degrees: 2, semitones: 3, direction:  1 },
+  { label: "3ª menor inferior",  degrees: 2, semitones: 3, direction: -1 },
 ];
 
 const LETTERS = ["C", "D", "E", "F", "G", "A", "B"] as const;

@@ -973,9 +973,6 @@ function generateSyncopaExercise(num: number, cfg: SyncopaConfig): ExamExercise 
   };
 }
 
-// Default interval pair used when no filter is configured
-const DEFAULT_INTERVAL_PAIR = ["2ª major ↑", "2ª major ↓"];
-
 function generateIntervalExercise(num: number, _cfg: IntervalsConfig): ExamExercise {
   const seq = INTERVAL_SEQUENCES[Math.floor(Math.random() * INTERVAL_SEQUENCES.length)];
 
@@ -1014,11 +1011,10 @@ function generateTransportExercise(num: number, tc: TransportConfig): ExamExerci
   // Pick intervals
   const ivPool = tc.intervals.length > 0
     ? TRANSPORT_INTERVALS.filter(iv => tc.intervals.includes(iv.label))
-    : TRANSPORT_INTERVALS.filter(iv => DEFAULT_INTERVAL_PAIR.includes(iv.label));
-  const ivSource = ivPool.length > 0 ? ivPool : TRANSPORT_INTERVALS;
+    : TRANSPORT_INTERVALS;
 
-  const count = Math.max(1, Math.min(tc.count, ivSource.length));
-  const shuffledIvs = [...ivSource].sort(() => Math.random() - 0.5).slice(0, count);
+  const count = Math.max(1, Math.min(tc.count, ivPool.length));
+  const shuffledIvs = [...ivPool].sort(() => Math.random() - 0.5).slice(0, count);
 
   const transpositions = shuffledIvs.map(iv => {
     const transposedKs = transposeKeySignature(frag.keySignature, iv);

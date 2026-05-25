@@ -495,14 +495,14 @@ export default function ExamPage() {
                 <p className="text-xs text-gray-500 mt-1">Intervals (buit = aleatori)</p>
                 <CfgCheckboxes
                   options={[
-                    { value: "2ª major ↑",  label: "2ª major ↑"  },
-                    { value: "2ª major ↓",  label: "2ª major ↓"  },
-                    { value: "2ª menor ↑",  label: "2ª menor ↑"  },
-                    { value: "2ª menor ↓",  label: "2ª menor ↓"  },
-                    { value: "3ª major ↑",  label: "3ª major ↑"  },
-                    { value: "3ª major ↓",  label: "3ª major ↓"  },
-                    { value: "3ª menor ↑",  label: "3ª menor ↑"  },
-                    { value: "3ª menor ↓",  label: "3ª menor ↓"  },
+                    { value: "2ª major superior",  label: "2ª major superior"  },
+                    { value: "2ª major inferior",  label: "2ª major inferior"  },
+                    { value: "2ª menor superior",  label: "2ª menor superior"  },
+                    { value: "2ª menor inferior",  label: "2ª menor inferior"  },
+                    { value: "3ª major superior",  label: "3ª major superior"  },
+                    { value: "3ª major inferior",  label: "3ª major inferior"  },
+                    { value: "3ª menor superior",  label: "3ª menor superior"  },
+                    { value: "3ª menor inferior",  label: "3ª menor inferior"  },
                   ]}
                   value={transportIntervals}
                   onChange={setTransportIntervals}
