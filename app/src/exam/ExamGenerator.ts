@@ -11,6 +11,7 @@ import {
 import type {
   ExamData, ExamConfig, ExamExercise,
   TransportConfig, SyncopaConfig, IntervalsConfig, ScalesConfig, KeySigConfig,
+  Note,
 } from "../theory/types";
 import type { MeasureData } from "../components/music/MultiMeasureRenderer";
 import type { VexNote } from "../components/music/VexFlowRenderer";
@@ -913,6 +914,23 @@ function generateCompleteBarExercise(num: number): ExamExercise {
   };
 }
 
+// Convert Note[] from buildScale to VexNote[] with correct octave for ascending scale.
+// buildScale assigns all notes octave 4 except the final tonic (octave 5).
+// Here we recalculate: notes whose diatonic index is below the tonic index wrap to octave 5.
+const DIATONIC_ORDER = ["C", "D", "E", "F", "G", "A", "B"];
+function scaleToVexNotes(notes: Note[]): VexNote[] {
+  const tonicIdx = DIATONIC_ORDER.indexOf(notes[0].name);
+  return notes.map((n, i) => {
+    const noteIdx = DIATONIC_ORDER.indexOf(n.name);
+    const octave = (i === notes.length - 1 || noteIdx < tonicIdx) ? 5 : 4;
+    return {
+      keys: [`${n.name.toLowerCase()}/${octave}`],
+      duration: "q",
+      accidentals: n.accidental ? [n.accidental] : undefined,
+    } as VexNote;
+  });
+}
+
 function generateScaleExercise(num: number, cfg: ScalesConfig): ExamExercise {
   const pool = filterOrAll(SCALE_EXERCISES, f => {
     const modeOk = cfg.modes.length === 0 || cfg.modes.includes(f.mode);
@@ -922,13 +940,14 @@ function generateScaleExercise(num: number, cfg: ScalesConfig): ExamExercise {
   const config = pickRandom(pool);
   const notes = buildScale(config.tonic, config.scaleType);
   const noteNames = notes.map(noteToSpanish);
+  const vexNotes = scaleToVexNotes(notes);
   return {
     type: "escalas",
     number: num,
     title: "Escala",
     instructions: `Escriu l'escala de ${config.label} en clau de Sol.`,
     data: { config, noteNames },
-    solution: { type: config.scaleType, label: config.label, notes: noteNames },
+    solution: { type: config.scaleType, label: config.label, notes: noteNames, vexNotes },
   };
 }
 

@@ -141,8 +141,16 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
 
         {/* ── 6. Escales ─────────────────────────────────── */}
         {exercise.type === "escalas" && (
-          <div className="border border-dashed border-gray-300 rounded h-24 bg-gray-50 flex items-center justify-center text-gray-300 text-sm">
-            [Pentagrama per escriure]
+          <div className="overflow-x-auto">
+            <VexFlowRenderer
+              notes={[]}
+              keySignature="C"
+              timeSignature=""
+              clef="treble"
+              width={720}
+              height={160}
+              staveY={45}
+            />
           </div>
         )}
 
@@ -264,7 +272,22 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
           })()}
 
           {exercise.type === "escalas" && (
-            <p>{(sol.notes as string[])?.join(" — ")}</p>
+            <>
+              <p className="font-medium text-sm mb-2">
+                {(sol.notes as string[])?.join(" — ")}
+              </p>
+              <div className="overflow-x-auto">
+                <VexFlowRenderer
+                  notes={(sol.vexNotes as VexNote[]) ?? []}
+                  keySignature="C"
+                  timeSignature=""
+                  clef="treble"
+                  width={720}
+                  height={120}
+                  staveY={30}
+                />
+              </div>
+            </>
           )}
 
           {exercise.type === "armadura" && (
