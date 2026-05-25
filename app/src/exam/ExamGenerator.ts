@@ -632,74 +632,74 @@ interface NoteSeq {
 }
 
 const INTERVAL_SEQUENCES: NoteSeq[] = [
-  // Do–Mi–Re–Sol–Mi–La–Sol–Si–Re5
+  // Sol–La–Do–Si–Do5–Sol–Mi–La–Re  (2M↑ 6M↓ 7M↑ 2m↑ 4J↓ 3m↓ 4J↑ 5J↓)
   {
-    keys: ["c/4","e/4","d/4","g/4","e/4","a/4","g/4","b/4","d/5"],
+    keys: ["g/4","a/4","c/4","b/4","c/5","g/4","e/4","a/4","d/4"],
     intervals: [
-      { label: "3ª major", ascending: true  },
-      { label: "2ª major", ascending: false },
-      { label: "4ª justa", ascending: true  },
+      { label: "2ª major", ascending: true  },
+      { label: "6ª major", ascending: false },
+      { label: "7ª major", ascending: true  },
+      { label: "2ª menor", ascending: true  },
+      { label: "4ª justa", ascending: false },
       { label: "3ª menor", ascending: false },
       { label: "4ª justa", ascending: true  },
-      { label: "2ª major", ascending: false },
-      { label: "3ª major", ascending: true  },
-      { label: "3ª menor", ascending: true  },
-    ],
-  },
-  // Mi–Si–Sol–Re5–Si–Mi–La–Do5–Mi5
-  {
-    keys: ["e/4","b/4","g/4","d/5","b/4","e/4","a/4","c/5","e/5"],
-    intervals: [
-      { label: "5ª justa", ascending: true  },
-      { label: "3ª major", ascending: false },
-      { label: "5ª justa", ascending: true  },
-      { label: "3ª menor", ascending: false },
       { label: "5ª justa", ascending: false },
-      { label: "4ª justa", ascending: true  },
-      { label: "3ª menor", ascending: true  },
-      { label: "3ª major", ascending: true  },
     ],
   },
-  // Do–La–Do5–Mi5–Do5–Sol–Si–Re5–La
+  // Mi–Si–Do4–Do5–Mi4–Fa–Re5–La–Sol  (5J↑ 7M↓ 8J↑ 6m↓ 2m↑ 6M↑ 4J↓ 2M↓)
   {
-    keys: ["c/4","a/4","c/5","e/5","c/5","g/4","b/4","d/5","a/4"],
+    keys: ["e/4","b/4","c/4","c/5","e/4","f/4","d/5","a/4","g/4"],
     intervals: [
+      { label: "5ª justa", ascending: true  },
+      { label: "7ª major", ascending: false },
+      { label: "8ª justa", ascending: true  },
+      { label: "6ª menor", ascending: false },
+      { label: "2ª menor", ascending: true  },
       { label: "6ª major", ascending: true  },
-      { label: "3ª menor", ascending: true  },
-      { label: "3ª major", ascending: true  },
-      { label: "3ª major", ascending: false },
       { label: "4ª justa", ascending: false },
-      { label: "3ª major", ascending: true  },
-      { label: "3ª menor", ascending: true  },
-      { label: "4ª justa", ascending: false },
+      { label: "2ª major", ascending: false },
     ],
   },
-  // Fa–La–Mi–Si–Sol–Re5–La–Do5–Fa
+  // Sol–Si–Mi–La–Fa5–Mi5–Sol4–Sol5–Fa5  (3M↑ 5J↓ 4J↑ 6m↑ 2m↓ 6M↓ 8J↑ 2M↓)
   {
-    keys: ["f/4","a/4","e/4","b/4","g/4","d/5","a/4","c/5","f/4"],
+    keys: ["g/4","b/4","e/4","a/4","f/5","e/5","g/4","g/5","f/5"],
     intervals: [
       { label: "3ª major", ascending: true  },
-      { label: "4ª justa", ascending: false },
-      { label: "5ª justa", ascending: true  },
-      { label: "3ª major", ascending: false },
-      { label: "5ª justa", ascending: true  },
-      { label: "4ª justa", ascending: false },
-      { label: "3ª menor", ascending: true  },
       { label: "5ª justa", ascending: false },
+      { label: "4ª justa", ascending: true  },
+      { label: "6ª menor", ascending: true  },
+      { label: "2ª menor", ascending: false },
+      { label: "6ª major", ascending: false },
+      { label: "8ª justa", ascending: true  },
+      { label: "2ª major", ascending: false },
     ],
   },
-  // Do–Fa–Re–Sol–Mi–Do5–La–Mi5–Do5
+  // Mi–Fa–Mi5–La–Si–Re4–Do5–Sol–Mi  (2m↑ 7M↑ 5J↓ 2M↑ 6M↓ 7m↑ 4J↓ 3m↓)
   {
-    keys: ["c/4","f/4","d/4","g/4","e/4","c/5","a/4","e/5","c/5"],
+    keys: ["e/4","f/4","e/5","a/4","b/4","d/4","c/5","g/4","e/4"],
     intervals: [
-      { label: "4ª justa", ascending: true  },
+      { label: "2ª menor", ascending: true  },
+      { label: "7ª major", ascending: true  },
+      { label: "5ª justa", ascending: false },
+      { label: "2ª major", ascending: true  },
+      { label: "6ª major", ascending: false },
+      { label: "7ª menor", ascending: true  },
+      { label: "4ª justa", ascending: false },
       { label: "3ª menor", ascending: false },
-      { label: "4ª justa", ascending: true  },
+    ],
+  },
+  // Do–Do5–La–Fa5–Sol4–La–Mi5–Do5–Sol  (8J↑ 3m↓ 6m↑ 7m↓ 2M↑ 5J↑ 3M↓ 4J↓)
+  {
+    keys: ["c/4","c/5","a/4","f/5","g/4","a/4","e/5","c/5","g/4"],
+    intervals: [
+      { label: "8ª justa", ascending: true  },
       { label: "3ª menor", ascending: false },
       { label: "6ª menor", ascending: true  },
-      { label: "3ª menor", ascending: false },
+      { label: "7ª menor", ascending: false },
+      { label: "2ª major", ascending: true  },
       { label: "5ª justa", ascending: true  },
       { label: "3ª major", ascending: false },
+      { label: "4ª justa", ascending: false },
     ],
   },
 ];
