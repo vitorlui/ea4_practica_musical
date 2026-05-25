@@ -4,7 +4,7 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  base: "/EA4_generador_examens/",
+  base: "/ea4_practica_musical/",
   test: {
     globals: true,
     environment: "jsdom",
