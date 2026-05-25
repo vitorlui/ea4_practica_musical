@@ -7,6 +7,7 @@ import {
   Formatter,
   Accidental,
   Annotation,
+  Dot,
 } from "vexflow";
 
 export interface VexNote {
@@ -78,6 +79,7 @@ export function VexFlowRenderer({
         const dur = buildDuration(n);
         const keys = n.isRest ? [clef === "treble" ? "b/4" : "d/3"] : n.keys;
         const sn = new StaveNote({ keys, duration: dur, clef });
+        if (n.dots) Dot.buildAndAttach([sn]);
         if (n.color) sn.setStyle({ fillStyle: n.color, strokeStyle: n.color });
 
         if (n.accidentals) {

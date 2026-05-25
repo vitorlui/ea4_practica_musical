@@ -49,7 +49,7 @@ const TRANSPORT_FRAGMENTS: TransportFragment[] = [
       { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }, { keys: ["b/4"], duration: "q" }] },
       { notes: [{ keys: ["a/4"], duration: "h" }, { keys: ["g/4"], duration: "q" }] },
       { notes: [{ keys: ["d/5"], duration: "q" }, { keys: ["b/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }] },
-      { notes: [{ keys: ["g/4"], duration: "hd", dots: 1 }] },
+      { notes: [{ keys: ["g/4"], duration: "h", dots: 1 }] },
     ],
   },
   // F major  4/4
@@ -79,7 +79,7 @@ const TRANSPORT_FRAGMENTS: TransportFragment[] = [
       { notes: [{ keys: ["e/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }, { keys: ["c/5"], duration: "q" }] },
       { notes: [{ keys: ["d/5"], duration: "h" }, { keys: ["b/4"], duration: "q" }] },
       { notes: [{ keys: ["a/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }, { keys: ["f/4"], duration: "q" }] },
-      { notes: [{ keys: ["e/4"], duration: "hd", dots: 1 }] },
+      { notes: [{ keys: ["e/4"], duration: "h", dots: 1 }] },
     ],
   },
   // G major  4/4
@@ -130,7 +130,7 @@ const METRIC_TONAL_FRAGMENTS: MetricTonalFragment[] = [
       { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }, { keys: ["b/4"], duration: "q" }] },
       { notes: [{ keys: ["c/5"], duration: "q" }, { keys: ["d/5"], duration: "q" }, { keys: ["b/4"], duration: "q" }] },
       { notes: [{ keys: ["a/4"], duration: "q" }, { keys: ["f#/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }] },
-      { notes: [{ keys: ["g/4"], duration: "hd", dots: 1 }] },
+      { notes: [{ keys: ["g/4"], duration: "h", dots: 1 }] },
     ],
     annotatedMeasures: [
       { notes: [
@@ -148,7 +148,7 @@ const METRIC_TONAL_FRAGMENTS: MetricTonalFragment[] = [
         { keys: ["f#/4"], duration: "q", ...ann("VII", D_VII) },
         { keys: ["g/4"], duration: "q", ...ann("I", D_I) },
       ]},
-      { notes: [{ keys: ["g/4"], duration: "hd", dots: 1, ...ann("I", D_I) }] },
+      { notes: [{ keys: ["g/4"], duration: "h", dots: 1, ...ann("I", D_I) }] },
     ],
   },
   // ── Re major, 2/4 ────────────────────────────────────────────────────────
@@ -226,7 +226,7 @@ const METRIC_TONAL_FRAGMENTS: MetricTonalFragment[] = [
         { keys: ["e/5"], duration: "q" },
         { keys: ["a/4"], duration: "q" },
       ]},
-      { notes: [{ keys: ["a/4"], duration: "hd", dots: 1 }] },
+      { notes: [{ keys: ["a/4"], duration: "h", dots: 1 }] },
     ],
     annotatedMeasures: [
       { notes: [
@@ -244,7 +244,7 @@ const METRIC_TONAL_FRAGMENTS: MetricTonalFragment[] = [
         { keys: ["e/5"], duration: "q", ...ann("V", D_V) },
         { keys: ["a/4"], duration: "q", ...ann("I", D_I) },
       ]},
-      { notes: [{ keys: ["a/4"], duration: "hd", dots: 1, ...ann("I", D_I) }] },
+      { notes: [{ keys: ["a/4"], duration: "h", dots: 1, ...ann("I", D_I) }] },
     ],
   },
   // ── Mi menor (harmònica), 4/4 ─────────────────────────────────────────────
@@ -294,7 +294,7 @@ const METRIC_TONAL_FRAGMENTS: MetricTonalFragment[] = [
       { notes: [{ keys: ["bb/4"], duration: "q" }, { keys: ["c/5"], duration: "q" }, { keys: ["d/5"], duration: "q" }] },
       { notes: [{ keys: ["eb/5"], duration: "q" }, { keys: ["f/5"], duration: "q" }, { keys: ["d/5"], duration: "q" }] },
       { notes: [{ keys: ["a/4"], duration: "q" }, { keys: ["bb/4"], duration: "q" }, { keys: ["c/5"], duration: "q" }] },
-      { notes: [{ keys: ["bb/4"], duration: "hd", dots: 1 }] },
+      { notes: [{ keys: ["bb/4"], duration: "h", dots: 1 }] },
     ],
     annotatedMeasures: [
       { notes: [
@@ -312,7 +312,7 @@ const METRIC_TONAL_FRAGMENTS: MetricTonalFragment[] = [
         { keys: ["bb/4"], duration: "q", ...ann("I", D_I) },
         { keys: ["c/5"], duration: "q" },
       ]},
-      { notes: [{ keys: ["bb/4"], duration: "hd", dots: 1, ...ann("I", D_I) }] },
+      { notes: [{ keys: ["bb/4"], duration: "h", dots: 1, ...ann("I", D_I) }] },
     ],
   },
   // ── Do major, 4/4 ────────────────────────────────────────────────────────
@@ -393,7 +393,7 @@ const METRIC_TONAL_FRAGMENTS: MetricTonalFragment[] = [
         { keys: ["d/5"], duration: "q" },
         { keys: ["g/4"], duration: "q" },
       ]},
-      { notes: [{ keys: ["g/4"], duration: "hd", dots: 1 }] },
+      { notes: [{ keys: ["g/4"], duration: "h", dots: 1 }] },
     ],
     annotatedMeasures: [
       { notes: [
@@ -411,7 +411,7 @@ const METRIC_TONAL_FRAGMENTS: MetricTonalFragment[] = [
         { keys: ["d/5"], duration: "q", ...ann("V", D_V) },
         { keys: ["g/4"], duration: "q", ...ann("I", D_I) },
       ]},
-      { notes: [{ keys: ["g/4"], duration: "hd", dots: 1, ...ann("I", D_I) }] },
+      { notes: [{ keys: ["g/4"], duration: "h", dots: 1, ...ann("I", D_I) }] },
     ],
   },
   // ── La major, 4/4 ─────────────────────────────────────────────────────────
@@ -633,13 +633,13 @@ const NOTAS_EXTRANYAS_FRAGMENTS: NotasExtranyes[] = [
       { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "8" }, { keys: ["g/4"], duration: "8" }, { keys: ["b/4"], duration: "q" }] },
       { notes: [{ keys: ["d/5"], duration: "h" }, { keys: ["c/5"], duration: "q" }] },
       { notes: [{ keys: ["b/4"], duration: "q" }, { keys: ["c/5"], duration: "8" }, { keys: ["b/4"], duration: "8" }, { keys: ["a/4"], duration: "q" }] },
-      { notes: [{ keys: ["g/4"], duration: "hd", dots: 1 }] },
+      { notes: [{ keys: ["g/4"], duration: "h", dots: 1 }] },
     ],
     annotatedMeasures: [
       { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "8", annotations: ["B"], annotationColors: ["#7c3aed"] }, { keys: ["g/4"], duration: "8" }, { keys: ["b/4"], duration: "q" }] },
       { notes: [{ keys: ["d/5"], duration: "h" }, { keys: ["c/5"], duration: "q", annotations: ["NP"], annotationColors: ["#dc2626"] }] },
       { notes: [{ keys: ["b/4"], duration: "q" }, { keys: ["c/5"], duration: "8", annotations: ["B"], annotationColors: ["#7c3aed"] }, { keys: ["b/4"], duration: "8" }, { keys: ["a/4"], duration: "q" }] },
-      { notes: [{ keys: ["g/4"], duration: "hd", dots: 1 }] },
+      { notes: [{ keys: ["g/4"], duration: "h", dots: 1 }] },
     ],
     explanations: [
       "B (bordadura): La4 (compàs 1) — ornament superior de Sol4",

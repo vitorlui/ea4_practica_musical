@@ -8,6 +8,7 @@ import {
   Formatter,
   Accidental,
   Annotation,
+  Dot,
 } from "vexflow";
 import type { VexNote } from "./VexFlowRenderer";
 
@@ -24,6 +25,7 @@ interface MultiMeasureRendererProps {
   measuresPerRow?: number;
   measureWidth?: number;
   rowHeight?: number;
+  topPadding?: number;      // extra space above first staff line for top annotations
   className?: string;
 }
 
@@ -42,6 +44,7 @@ export function MultiMeasureRenderer({
   measuresPerRow = 2,
   measureWidth = 240,
   rowHeight = 140,
+  topPadding = 10,
   className = "",
 }: MultiMeasureRendererProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -54,7 +57,7 @@ export function MultiMeasureRenderer({
     const numRows = Math.ceil(measures.length / measuresPerRow);
     const firstStaveExtra = 80; // extra width for clef+key+time on first stave
     const svgWidth = measuresPerRow * measureWidth + firstStaveExtra + 20;
-    const svgHeight = numRows * rowHeight + 20;
+    const svgHeight = numRows * rowHeight + topPadding + 10;
 
     try {
       const renderer = new Renderer(container, Renderer.Backends.SVG);
@@ -70,7 +73,7 @@ export function MultiMeasureRenderer({
 
       for (let row = 0; row < numRows; row++) {
         let x = 10;
-        const y = row * rowHeight + 10;
+        const y = row * rowHeight + topPadding;
 
         for (let col = 0; col < measuresPerRow; col++) {
           const mIdx = row * measuresPerRow + col;
@@ -100,6 +103,7 @@ export function MultiMeasureRenderer({
                 ? [clef === "treble" ? "b/4" : "d/3"]
                 : n.keys;
               const sn = new StaveNote({ keys, duration: dur, clef });
+              if (n.dots) Dot.buildAndAttach([sn]);
 
               (n.accidentals ?? []).forEach((acc, i) => {
                 if (acc) sn.addModifier(new Accidental(acc), i);
@@ -179,7 +183,7 @@ export function MultiMeasureRenderer({
   const numRows = Math.ceil(measures.length / measuresPerRow);
   const firstStaveExtra = 80;
   const totalWidth = measuresPerRow * measureWidth + firstStaveExtra + 20;
-  const totalHeight = numRows * rowHeight + 20;
+  const totalHeight = numRows * rowHeight + topPadding + 10;
 
   return (
     <div
