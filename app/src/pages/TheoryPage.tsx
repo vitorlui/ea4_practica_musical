@@ -1,25 +1,9 @@
 import { useState } from "react";
 import { PageShell } from "../components/layout";
 import { Card } from "../components/ui";
-
-interface TheoryStep {
-  title: string;
-  body: string;
-  highlight?: boolean;
-}
-
-interface TheoryTable {
-  headers: string[];
-  rows: (string | { text: string; badge?: "consonante" | "disonante" | "perfecta" | "imperfecta" })[][];
-}
-
-interface TheorySection {
-  id: string;
-  title: string;
-  content?: string[];
-  steps?: TheoryStep[];
-  table?: TheoryTable;
-}
+import { StepList } from "../components/theory/StepList";
+import { TheoryTable } from "../components/theory/TheoryTable";
+import type { TheorySection } from "../components/theory/types";
 
 const THEORY_SECTIONS: TheorySection[] = [
   {
@@ -117,13 +101,6 @@ const THEORY_SECTIONS: TheorySection[] = [
   },
 ];
 
-const BADGE_STYLES: Record<string, string> = {
-  perfecta: "bg-indigo-100 text-indigo-700",
-  imperfecta: "bg-blue-100 text-blue-700",
-  consonante: "bg-green-100 text-green-700",
-  disonante: "bg-red-100 text-red-700",
-};
-
 export default function TheoryPage() {
   const [openSection, setOpenSection] = useState<string | null>("sincopa");
 
@@ -145,7 +122,6 @@ export default function TheoryPage() {
 
             {openSection === section.id && (
               <div className="mt-3 border-t border-gray-100 pt-3 space-y-4">
-                {/* Plain bullet list */}
                 {section.content && (
                   <ul className="space-y-2">
                     {section.content.map((line, i) => (
@@ -156,81 +132,8 @@ export default function TheoryPage() {
                     ))}
                   </ul>
                 )}
-
-                {/* Numbered steps */}
-                {section.steps && (
-                  <ol className="space-y-3">
-                    {section.steps.map((step, i) => (
-                      <li
-                        key={i}
-                        className={[
-                          "flex gap-3 rounded-lg p-3",
-                          step.highlight
-                            ? "bg-indigo-50 border border-indigo-200"
-                            : "bg-gray-50",
-                        ].join(" ")}
-                      >
-                        <span
-                          className={[
-                            "flex-shrink-0 w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center mt-0.5",
-                            step.highlight
-                              ? "bg-indigo-600 text-white"
-                              : "bg-white border border-gray-300 text-gray-500",
-                          ].join(" ")}
-                        >
-                          {i + 1}
-                        </span>
-                        <div>
-                          <p className={["text-sm font-semibold mb-0.5", step.highlight ? "text-indigo-800" : "text-gray-800"].join(" ")}>
-                            {step.title}
-                          </p>
-                          <p className={["text-sm leading-relaxed", step.highlight ? "text-indigo-700" : "text-gray-600"].join(" ")}>
-                            {step.body}
-                          </p>
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
-                )}
-
-                {/* Table */}
-                {section.table && (
-                  <div className="overflow-x-auto rounded-lg border border-gray-200">
-                    <table className="w-full text-sm">
-                      <thead className="bg-gray-50 border-b border-gray-200">
-                        <tr>
-                          {section.table.headers.map((h, i) => (
-                            <th key={i} className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                              {h}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-100">
-                        {section.table.rows.map((row, ri) => (
-                          <tr key={ri} className="hover:bg-gray-50">
-                            {row.map((cell, ci) => (
-                              <td key={ci} className="px-3 py-2 text-gray-700 font-medium">
-                                {typeof cell === "string" ? (
-                                  cell
-                                ) : (
-                                  <span
-                                    className={[
-                                      "inline-block px-2 py-0.5 rounded text-xs font-semibold",
-                                      cell.badge ? BADGE_STYLES[cell.badge] : "",
-                                    ].join(" ")}
-                                  >
-                                    {cell.text}
-                                  </span>
-                                )}
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                {section.steps && <StepList steps={section.steps} />}
+                {section.table && <TheoryTable table={section.table} />}
               </div>
             )}
           </Card>
