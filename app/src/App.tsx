@@ -15,6 +15,11 @@ const TransportePage = React.lazy(() => import("./pages/TransportePage").catch((
 const CompasTonalidadPage = React.lazy(() => import("./pages/CompasTonalidadPage").catch(() => ({ default: () => <StubPage title="3. Compás/Tonalidad" description="Error cargando" /> })));
 const CompletarCompasPage = React.lazy(() => import("./pages/CompletarCompasPage").catch(() => ({ default: () => <StubPage title="5. Completar compás" description="Error cargando" /> })));
 const NotasExtranyasPage = React.lazy(() => import("./pages/NotasExtranyasPage").catch(() => ({ default: () => <StubPage title="8. Notas extrañas" description="Error cargando" /> })));
+const GradosTonalesPage = React.lazy(() => import("./pages/GradosTonalesPage").catch(() => ({ default: () => <StubPage title="Grados tonales" description="Error cargando" /> })));
+const EnarmoniaPage = React.lazy(() => import("./pages/EnarmoniaPage").catch(() => ({ default: () => <StubPage title="Enarmonía" description="Error cargando" /> })));
+const AcordesPage = React.lazy(() => import("./pages/AcordesPage").catch(() => ({ default: () => <StubPage title="Acordes perfectos" description="Error cargando" /> })));
+const SemitonoPage = React.lazy(() => import("./pages/SemitonoPage").catch(() => ({ default: () => <StubPage title="Semitono" description="Error cargando" /> })));
+const NotasAdornoPage = React.lazy(() => import("./pages/NotasAdornoPage").catch(() => ({ default: () => <StubPage title="Notas de adorno" description="Error cargando" /> })));
 
 function App() {
   return (
@@ -33,6 +38,11 @@ function App() {
             <Route path="/escalas" element={<ScalesPage />} />
             <Route path="/armadura" element={<KeySignaturesPage />} />
             <Route path="/notas-extranyas" element={<NotasExtranyasPage />} />
+            <Route path="/grados-tonales" element={<GradosTonalesPage />} />
+            <Route path="/enarmonia" element={<EnarmoniaPage />} />
+            <Route path="/acordes" element={<AcordesPage />} />
+            <Route path="/semitono" element={<SemitonoPage />} />
+            <Route path="/notas-adorno" element={<NotasAdornoPage />} />
             <Route path="/examen" element={<ExamPage />} />
             <Route path="/teoria" element={<TheoryPage />} />
             <Route path="*" element={<StubPage title="404" description="Página no encontrada" />} />
