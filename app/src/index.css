@@ -18,7 +18,12 @@
     page-break-after: always;
   }
 
-  /* ── Imprimir solució only ─────────────────────────── */
+  /* ── Imprimir examen (sense solució) ──────────────── */
+  .solution-box {
+    display: none !important;
+  }
+
+  /* ── Imprimir solució ──────────────────────────────── */
   body.print-solution-only .exam-question-content {
     display: none !important;
   }
@@ -26,6 +31,7 @@
     display: none !important;
   }
   body.print-solution-only .solution-box {
+    display: block !important;
     border: none !important;
     background: transparent !important;
     padding: 0 !important;

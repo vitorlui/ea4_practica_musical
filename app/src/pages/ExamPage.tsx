@@ -436,7 +436,8 @@ export default function ExamPage() {
 
   const handlePrintExam = useCallback(() => {
     document.body.classList.remove("print-solution-only");
-    window.print();
+    setShowSolution(false);
+    setTimeout(() => { window.print(); }, 150);
   }, []);
 
   const handlePrintSolution = useCallback(() => {
