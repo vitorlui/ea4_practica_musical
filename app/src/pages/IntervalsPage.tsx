@@ -1,6 +1,39 @@
 import { useState, useCallback } from "react";
-import { PageShell } from "../components/layout";
+import { TheoryPracticeLayout } from "../components/layout";
 import { Card, Button, Badge, Select } from "../components/ui";
+import type { TheorySection } from "../components/theory/types";
+
+const INTERVALOS_THEORY: TheorySection[] = [
+  {
+    id: "def",
+    steps: [
+      { title: "Número del intervalo", body: "Cuenta las notas desde la nota inferior hasta la superior, incluidas ambas. Do→Sol: Do(1), Re(2), Mi(3), Fa(4), Sol(5) → 5ª." },
+      { title: "Calidad: mayores y menores", body: "Son mayores o menores: 2ª, 3ª, 6ª, 7ª. Mayor = más semitonos; menor = menos. Ej: 3ª mayor = 4 semitonos (Do-Mi); 3ª menor = 3 semitonos (Re-Fa)." },
+      { title: "Calidad: justos", body: "Son justos: 4ª, 5ª, 8ª. 4ª justa = 5st, 5ª justa = 7st, 8ª justa = 12st. Los intervalos justos no pueden ser mayores ni menores." },
+      { title: "Aumentado y disminuido", body: "Aumentado = 1 semitono más que mayor/justo. Disminuido = 1 semitono menos que menor/justo. Ej: 4ª aumentada = 6st (Do-Fa#); 5ª disminuida = 6st (Si-Fa)." },
+      { title: "Melódico vs armónico", body: "Melódico: las dos notas suenan una después de la otra (puede ser ascendente o descendente). Armónico: las dos notas suenan simultáneamente." },
+      { title: "Conjunto vs disjunto", body: "Conjunto: distancia de 2ª (grado conjunto, notas adyacentes). Disjunto: más de una 2ª (salto)." },
+      { title: "Simple vs compuesto", body: "Simple: hasta la 8ª inclusive. Compuesto: supera la octava (9ª, 10ª...). En EA4 se trabajan principalmente los simples." },
+    ],
+    table: {
+      headers: ["Intervalo", "Semitonos", "Calidad", "Consonancia"],
+      rows: [
+        ["2ª menor", "1", "menor", { text: "Disonante", badge: "disonante" }],
+        ["2ª mayor", "2", "mayor", { text: "Disonante", badge: "disonante" }],
+        ["3ª menor", "3", "menor", { text: "Consonancia imperfecta", badge: "imperfecta" }],
+        ["3ª mayor", "4", "mayor", { text: "Consonancia imperfecta", badge: "imperfecta" }],
+        ["4ª justa", "5", "justa", { text: "Disonante*", badge: "disonante" }],
+        ["4ª aumentada / 5ª dis.", "6", "aum./dis.", { text: "Disonante", badge: "disonante" }],
+        ["5ª justa", "7", "justa", { text: "Consonancia perfecta", badge: "perfecta" }],
+        ["6ª menor", "8", "menor", { text: "Consonancia imperfecta", badge: "imperfecta" }],
+        ["6ª mayor", "9", "mayor", { text: "Consonancia imperfecta", badge: "imperfecta" }],
+        ["7ª menor", "10", "menor", { text: "Disonante", badge: "disonante" }],
+        ["7ª mayor", "11", "mayor", { text: "Disonante", badge: "disonante" }],
+        ["8ª justa", "12", "justa", { text: "Consonancia perfecta", badge: "perfecta" }],
+      ],
+    },
+  },
+];
 import { VexFlowRenderer } from "../components/music/VexFlowRenderer";
 import { randomIntervalExercise, noteToVexKey } from "../data/intervalExercises";
 import type { IntervalExercise } from "../data/intervalExercises";
@@ -60,7 +93,11 @@ export default function IntervalsPage() {
   }, []);
 
   return (
-    <PageShell title="4. Intervalos">
+    <TheoryPracticeLayout
+      title="4. Intervalos"
+      bookPages="p.72–79 (Unitat 8) · p.16–23 (Unitat 1)"
+      theory={INTERVALOS_THEORY}
+    >
       <div className="space-y-4">
         <Card>
           <p className="text-gray-600 text-sm">
@@ -156,6 +193,6 @@ export default function IntervalsPage() {
           </Card>
         )}
       </div>
-    </PageShell>
+    </TheoryPracticeLayout>
   );
 }

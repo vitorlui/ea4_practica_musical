@@ -1,6 +1,30 @@
 import { useState, useCallback, useMemo } from "react";
-import { PageShell } from "../components/layout";
+import { TheoryPracticeLayout } from "../components/layout";
 import { Card, Button, Badge } from "../components/ui";
+import type { TheorySection } from "../components/theory/types";
+
+const SINCOPA_THEORY: TheorySection[] = [
+  {
+    id: "def",
+    steps: [
+      { title: "¿Qué es el tiempo fuerte?", body: "En un compás, el primer tiempo siempre es fuerte. En 4/4 también es semifuerte el tercer tiempo. Los demás son débiles." },
+      { title: "Definición de síncopa", body: "Una síncopa es una nota que empieza en un tiempo o parte DÉBIL y se prolonga (por su valor o ligada) ocupando el tiempo FUERTE siguiente. La nota 'atraviesa' la línea de tiempo fuerte." },
+      { title: "Definición de contratiempo", body: "Un contratiempo es una nota corta que ocupa un tiempo o parte DÉBIL, precedida por una pausa en tiempo fuerte. No se prolonga al tiempo fuerte. Hay pausa en el tiempo fuerte." },
+      { title: "Cómo identificar síncopa (método)", body: "1) Señala los tiempos fuertes. 2) Busca notas que empiecen en tiempo débil. 3) Si esa nota cruza el tiempo fuerte siguiente (por duración o ligadura) → síncopa." },
+      { title: "Cómo identificar contratiempo (método)", body: "1) Señala los tiempos fuertes. 2) Busca pausas en tiempo fuerte. 3) Si después de la pausa hay una nota en tiempo débil que no llega al fuerte → contratiempo." },
+      { title: "Regla mnemotécnica", body: "SÍNCOPA: la nota 'salta' sobre el tiempo fuerte. CONTRATIEMPO: la pausa 'ocupa' el tiempo fuerte.", highlight: true },
+    ],
+    table: {
+      headers: ["", "Síncopa (>)", "Contratiempo (+)"],
+      rows: [
+        ["Empieza en", "Tiempo débil", "Tiempo débil"],
+        ["Tiempo fuerte", "Ocupado por la nota (ligada o por valor)", "Ocupado por pausa"],
+        ["Ligadura", "Frecuente (puede ser por valor)", "No"],
+        ["Símbolo libro", ">", "+"],
+      ],
+    },
+  },
+];
 import { MultiMeasureRenderer } from "../components/music/MultiMeasureRenderer";
 import { MetricTreeRenderer } from "../components/music/MetricTreeRenderer";
 import type { MeasureData } from "../components/music/MultiMeasureRenderer";
@@ -141,7 +165,11 @@ export default function SyncopationPage() {
   const numNotes = totalNotes(exercise);
 
   return (
-    <PageShell title="1. Síncopas i Contratemps">
+    <TheoryPracticeLayout
+      title="1. Síncopas y Contratiempos"
+      bookPages="p.16–23 (Unitat 1)"
+      theory={SINCOPA_THEORY}
+    >
       <div className="space-y-4">
         <Card>
           <p className="text-gray-600 text-sm">
@@ -278,6 +306,6 @@ export default function SyncopationPage() {
           </Card>
         )}
       </div>
-    </PageShell>
+    </TheoryPracticeLayout>
   );
 }

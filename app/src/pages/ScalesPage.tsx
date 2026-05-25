@@ -1,6 +1,29 @@
 import { useState, useCallback } from "react";
-import { PageShell } from "../components/layout";
+import { TheoryPracticeLayout } from "../components/layout";
 import { Card, Button, Badge, Select } from "../components/ui";
+import type { TheorySection } from "../components/theory/types";
+
+const ESCALAS_THEORY: TheorySection[] = [
+  {
+    id: "def",
+    steps: [
+      { title: "Escala mayor", body: "Patrón: T-T-ST-T-T-T-ST (T = tono = 2 semitonos, ST = semitono = 1 semitono). Ejemplo Do mayor: Do Re Mi Fa Sol La Si Do. Primer tetracordo: Do-Re-Mi-Fa. Segundo tetracordo: Sol-La-Si-Do." },
+      { title: "Escala menor natural", body: "Patrón: T-ST-T-T-ST-T-T. Ejemplo La menor: La Si Do Re Mi Fa Sol La. Es la relativa menor de Do mayor (misma armadura)." },
+      { title: "Escala menor armónica", body: "Igual que la menor natural pero el VII grado sube medio tono (sensible). Ejemplo La menor armónica: La Si Do Re Mi Fa Sol# La. El intervalo entre VI y VII es de tono y medio (T+ST)." },
+      { title: "Escala menor melódica", body: "Ascendente: VI y VII suben medio tono. Descendente: igual que la menor natural. Ejemplo La menor melódica asc.: La Si Do Re Mi Fa# Sol# La." },
+      { title: "Tetracordos", body: "Un tetracordo es un grupo de 4 notas consecutivas. Cada escala tiene dos tetracordos: 1.º = grados I-II-III-IV, 2.º = grados V-VI-VII-VIII. El libro pide señalarlos en el examen." },
+    ],
+    table: {
+      headers: ["Escala", "Patrón", "VII grado"],
+      rows: [
+        ["Mayor", "T-T-ST-T-T-T-ST", "Subtónica (T de la tónica)"],
+        ["Menor natural", "T-ST-T-T-ST-T-T", "Subtónica (T de la tónica)"],
+        ["Menor armónica", "T-ST-T-T-ST-T+ST-ST", "Sensible (ST de la tónica, subido)"],
+        ["Menor melódica (asc.)", "T-ST-T-T-T-T-ST", "Sensible (ST de la tónica, subido)"],
+      ],
+    },
+  },
+];
 import { VexFlowRenderer } from "../components/music/VexFlowRenderer";
 import type { VexNote } from "../components/music/VexFlowRenderer";
 import { buildScale, noteToSpanish } from "../theory/scales";
@@ -58,7 +81,11 @@ export default function ScalesPage() {
   }, []);
 
   return (
-    <PageShell title="6. Escalas">
+    <TheoryPracticeLayout
+      title="6. Escalas"
+      bookPages="p.56–71 (Unitats 6–7)"
+      theory={ESCALAS_THEORY}
+    >
       <div className="space-y-4">
         <Card>
           <p className="text-gray-600 text-sm">
@@ -144,6 +171,6 @@ export default function ScalesPage() {
           </Card>
         )}
       </div>
-    </PageShell>
+    </TheoryPracticeLayout>
   );
 }

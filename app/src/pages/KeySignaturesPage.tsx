@@ -1,6 +1,33 @@
 import { useState, useCallback } from "react";
-import { PageShell } from "../components/layout";
+import { TheoryPracticeLayout } from "../components/layout";
 import { Card, Button, Badge, Select } from "../components/ui";
+import type { TheorySection } from "../components/theory/types";
+
+const ARMADURA_THEORY: TheorySection[] = [
+  {
+    id: "def",
+    steps: [
+      { title: "Orden de los sostenidos", body: "Fa - Do - Sol - Re - La - Mi - Si. Mnemotécnica: 'Fa Do Sol Re La Mi Si'. La tónica mayor está una 2ª menor (1 semitono) por encima del último sostenido. Ejemplo: 2 sostenidos (Fa#, Do#) → último = Do#, tónica = Re → Re Mayor." },
+      { title: "Orden de los bemoles", body: "Si - Mi - La - Re - Sol - Do - Fa. La tónica mayor es el penúltimo bemol. Ejemplo: 3 bemoles (Sib, Mib, Lab) → penúltimo = Mib → Mib Mayor. Excepción: 1 bemol (Sib) = Fa Mayor (memorizar)." },
+      { title: "Tonalidades relativas", body: "Cada armadura pertenece a dos tonalidades: una mayor y su relativa menor. La relativa menor está una 3ª menor (1T+1ST) por debajo de la mayor. Ej: Do Mayor → La menor; Sol Mayor → Mi menor." },
+      { title: "Tonalidades enarmónicas", body: "Fa# Mayor (6#) = Solb Mayor (6b). Do# Mayor (7#) = Reb Mayor (5b). Estas tonalidades suenan igual pero se escriben de forma distinta." },
+      { title: "Do Mayor y La menor", body: "Sin alteraciones en la armadura. Do Mayor y La menor son la pareja relativa sin accidentales.", highlight: true },
+    ],
+    table: {
+      headers: ["Alteraciones", "Mayor", "Relativa menor"],
+      rows: [
+        ["0", "Do Mayor", "La menor"],
+        ["1# (Fa#)", "Sol Mayor", "Mi menor"],
+        ["2# (Fa#,Do#)", "Re Mayor", "Si menor"],
+        ["3# (+Sol#)", "La Mayor", "Fa# menor"],
+        ["1b (Sib)", "Fa Mayor", "Re menor"],
+        ["2b (+Mib)", "Sib Mayor", "Sol menor"],
+        ["3b (+Lab)", "Mib Mayor", "Do menor"],
+        ["4b (+Reb)", "Lab Mayor", "Fa menor"],
+      ],
+    },
+  },
+];
 import { VexFlowRenderer } from "../components/music/VexFlowRenderer";
 import { getKeySignature, getRelativeKey, ALL_MAJOR_KEYS, ALL_MINOR_KEYS } from "../theory/keys";
 import { randomKeySignatureExercise } from "../data/keySignatureExercises";
@@ -60,7 +87,11 @@ export default function KeySignaturesPage() {
   }, []);
 
   return (
-    <PageShell title="7. Armadura (Tonalidad)">
+    <TheoryPracticeLayout
+      title="7. Armadura"
+      bookPages="p.32–47 (Unitats 3–4)"
+      theory={ARMADURA_THEORY}
+    >
       <div className="space-y-4">
         {/* Instructions */}
         <Card>
@@ -185,6 +216,6 @@ export default function KeySignaturesPage() {
           </Card>
         )}
       </div>
-    </PageShell>
+    </TheoryPracticeLayout>
   );
 }
