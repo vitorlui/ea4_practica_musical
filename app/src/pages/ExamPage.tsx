@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { PageShell } from "../components/layout";
 import { Card, Button } from "../components/ui";
-import { VexFlowRenderer } from "../components/music/VexFlowRenderer";
+import { VexFlowRenderer, type VexNote } from "../components/music/VexFlowRenderer";
 import { MultiMeasureRenderer } from "../components/music/MultiMeasureRenderer";
 import type { MeasureData } from "../components/music/MultiMeasureRenderer";
 import { generateExam } from "../exam/ExamGenerator";
@@ -120,16 +120,24 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
         )}
 
         {/* ── 5. Completar compàs ────────────────────────── */}
-        {exercise.type === "completar_compas" && (
-          <>
-            <p className="text-xs text-gray-500 mb-1 font-medium">Fragment incomplet:</p>
-            <MultiStaff
-              measures={getMeasures(data, "measures")}
-              ks={str(data, "keySignature")}
-              ts={str(data, "timeSignature")}
-            />
-          </>
-        )}
+        {exercise.type === "completar_compas" && (() => {
+          type CMItem = { timeSignature: string; questionNotes: VexNote[]; completionNotes: VexNote[] };
+          const items = (data.items ?? []) as CMItem[];
+          return (
+            <div className="grid grid-cols-3 gap-x-4 gap-y-1">
+              {items.map((item, i) => (
+                <VexFlowRenderer key={i}
+                  notes={item.questionNotes}
+                  timeSignature={item.timeSignature}
+                  keySignature="C"
+                  width={250}
+                  height={130}
+                  staveY={30}
+                />
+              ))}
+            </div>
+          );
+        })()}
 
         {/* ── 6. Escales ─────────────────────────────────── */}
         {exercise.type === "escalas" && (
@@ -236,18 +244,24 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
             </div>
           )}
 
-          {exercise.type === "completar_compas" && (
-            <>
-              <p className="text-xs text-gray-500 mb-1">
-                Figura afegida: <strong>{str(sol, "missingLabel")}</strong>
-              </p>
-              <MultiStaff
-                measures={getMeasures(sol, "measures")}
-                ks={str(sol, "keySignature")}
-                ts={str(sol, "timeSignature")}
-              />
-            </>
-          )}
+          {exercise.type === "completar_compas" && (() => {
+            type CMItem = { timeSignature: string; questionNotes: VexNote[]; completionNotes: VexNote[] };
+            const items = (sol.items ?? []) as CMItem[];
+            return (
+              <div className="grid grid-cols-3 gap-x-4 gap-y-1">
+                {items.map((item, i) => (
+                  <VexFlowRenderer key={i}
+                    notes={[...item.questionNotes, ...item.completionNotes]}
+                    timeSignature={item.timeSignature}
+                    keySignature="C"
+                    width={250}
+                    height={130}
+                    staveY={30}
+                  />
+                ))}
+              </div>
+            );
+          })()}
 
           {exercise.type === "escalas" && (
             <p>{(sol.notes as string[])?.join(" — ")}</p>

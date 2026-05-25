@@ -13,6 +13,7 @@ import type {
   TransportConfig, SyncopaConfig, IntervalsConfig, ScalesConfig, KeySigConfig,
 } from "../theory/types";
 import type { MeasureData } from "../components/music/MultiMeasureRenderer";
+import type { VexNote } from "../components/music/VexFlowRenderer";
 
 function pickRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -512,64 +513,87 @@ const METRIC_TONAL_FRAGMENTS: MetricTonalFragment[] = [
   },
 ];
 
-// ── Completar compàs: 4 measures (1 shown incomplete, rest complete) ──────────
-interface CompleteBarFragment {
-  partialMeasures: MeasureData[];  // 4 measures shown to student, one has gap
-  fullMeasures: MeasureData[];     // 4 measures complete (solution)
+// ── Completar compàs: 6 individual staves, 2 rows × 3 columns ────────────────
+// Each item shows the "given" notes (questionNotes) and the expected
+// completion (completionNotes, pre-colored for the solution view).
+
+interface CompleteMeasureItem {
   timeSignature: string;
-  keySignature: string;
-  missingLabel: string;
+  questionNotes: VexNote[];
+  completionNotes: VexNote[];
 }
 
-const COMPLETE_BAR_FRAGMENTS: CompleteBarFragment[] = [
-  {
-    timeSignature: "4/4", keySignature: "C",
-    partialMeasures: [
-      { notes: [{ keys: ["c/4"], duration: "q" }, { keys: ["e/4"], duration: "q" }, { keys: ["g/4"], duration: "h" }] },
-      { notes: [{ keys: ["e/4"], duration: "q" }, { keys: ["d/4"], duration: "q" }] }, // incomplete: missing half note
-      { notes: [{ keys: ["c/4"], duration: "q" }, { keys: ["d/4"], duration: "q" }, { keys: ["e/4"], duration: "q" }, { keys: ["f/4"], duration: "q" }] },
-      { notes: [{ keys: ["g/4"], duration: "w" }] },
-    ],
-    fullMeasures: [
-      { notes: [{ keys: ["c/4"], duration: "q" }, { keys: ["e/4"], duration: "q" }, { keys: ["g/4"], duration: "h" }] },
-      { notes: [{ keys: ["e/4"], duration: "q" }, { keys: ["d/4"], duration: "q" }, { keys: ["c/4"], duration: "h" }] },
-      { notes: [{ keys: ["c/4"], duration: "q" }, { keys: ["d/4"], duration: "q" }, { keys: ["e/4"], duration: "q" }, { keys: ["f/4"], duration: "q" }] },
-      { notes: [{ keys: ["g/4"], duration: "w" }] },
-    ],
-    missingLabel: "Blanca (Do4) al compàs 2",
-  },
-  {
-    timeSignature: "3/4", keySignature: "G",
-    partialMeasures: [
-      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }, { keys: ["b/4"], duration: "q" }] },
-      { notes: [{ keys: ["d/5"], duration: "q" }, { keys: ["b/4"], duration: "q" }] }, // incomplete: missing 1 quarter
-      { notes: [{ keys: ["c/5"], duration: "q" }, { keys: ["b/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }] },
-      { notes: [{ keys: ["g/4"], duration: "hd", dots: 1 }] },
-    ],
-    fullMeasures: [
-      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }, { keys: ["b/4"], duration: "q" }] },
-      { notes: [{ keys: ["d/5"], duration: "q" }, { keys: ["b/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }] },
-      { notes: [{ keys: ["c/5"], duration: "q" }, { keys: ["b/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }] },
-      { notes: [{ keys: ["g/4"], duration: "hd", dots: 1 }] },
-    ],
-    missingLabel: "Negra (Sol4) al compàs 2",
-  },
-  {
-    timeSignature: "2/4", keySignature: "F",
-    partialMeasures: [
-      { notes: [{ keys: ["f/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }] },
-      { notes: [{ keys: ["a/4"], duration: "8" }, { keys: ["bb/4"], duration: "8" }] }, // incomplete: missing 2 eighth notes
-      { notes: [{ keys: ["c/5"], duration: "q" }, { keys: ["a/4"], duration: "q" }] },
-      { notes: [{ keys: ["f/4"], duration: "h" }] },
-    ],
-    fullMeasures: [
-      { notes: [{ keys: ["f/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }] },
-      { notes: [{ keys: ["a/4"], duration: "8" }, { keys: ["bb/4"], duration: "8" }, { keys: ["a/4"], duration: "8" }, { keys: ["g/4"], duration: "8" }] },
-      { notes: [{ keys: ["c/5"], duration: "q" }, { keys: ["a/4"], duration: "q" }] },
-      { notes: [{ keys: ["f/4"], duration: "h" }] },
-    ],
-    missingLabel: "Dues corxeres (La4 + Sol4) al compàs 2",
-  },
+const CC = "#dc2626"; // completion color (red)
+function qn(dur: string, x: Partial<VexNote> = {}): VexNote { return { keys: ["b/4"], duration: dur, ...x }; }
+function cn(dur: string, x: Partial<VexNote> = {}): VexNote { return { keys: ["b/4"], duration: dur, color: CC, ...x }; }
+
+// Two interchangeable sets of 6 measures (randomly chosen per exam).
+// Beat counts verified for each time signature.
+const COMPLETE_BAR_SETS: CompleteMeasureItem[][] = [
+  // ── Set A ─────────────────────────────────────────────────────────────────
+  [
+    // A1 · 4/4 · given: 8-rest + q. (=2 beats) · completion: h (=2 beats)
+    { timeSignature: "4/4",
+      questionNotes:  [qn("8", { isRest: true }), qn("q", { dots: 1 })],
+      completionNotes:[cn("h")] },
+
+    // A2 · 3/4 · given: q + 8 (=1.5 beats) · completion: q. (=1.5 beats)
+    { timeSignature: "3/4",
+      questionNotes:  [qn("q"), qn("8")],
+      completionNotes:[cn("q", { dots: 1 })] },
+
+    // A3 · 2/4 · given: 8. + 16 (=1 beat) · completion: q (=1 beat)
+    { timeSignature: "2/4",
+      questionNotes:  [qn("8", { dots: 1 }), qn("16")],
+      completionNotes:[cn("q")] },
+
+    // A4 · 6/8 · given: 8.+16+q (=4 eighths) · completion: q (=2 eighths)
+    { timeSignature: "6/8",
+      questionNotes:  [qn("8", { dots: 1 }), qn("16"), qn("q")],
+      completionNotes:[cn("q")] },
+
+    // A5 · 9/8 · given: q.+8 (=4 eighths) · completion: q.+q (=5 eighths)
+    { timeSignature: "9/8",
+      questionNotes:  [qn("q", { dots: 1 }), qn("8")],
+      completionNotes:[cn("q", { dots: 1 }), cn("q")] },
+
+    // A6 · 6/8 · given: 8-rest+q. (=4 eighths) · completion: q (=2 eighths)
+    { timeSignature: "6/8",
+      questionNotes:  [qn("8", { isRest: true }), qn("q", { dots: 1 })],
+      completionNotes:[cn("q")] },
+  ],
+  // ── Set B ─────────────────────────────────────────────────────────────────
+  [
+    // B1 · 4/4 · given: q.+8+q (=3 beats) · completion: q (=1 beat)
+    { timeSignature: "4/4",
+      questionNotes:  [qn("q", { dots: 1 }), qn("8"), qn("q")],
+      completionNotes:[cn("q")] },
+
+    // B2 · 3/4 · given: 8+q. (=2 beats) · completion: q (=1 beat)
+    { timeSignature: "3/4",
+      questionNotes:  [qn("8"), qn("q", { dots: 1 })],
+      completionNotes:[cn("q")] },
+
+    // B3 · 2/4 · given: 16+8+16 (=1 beat, Lombard) · completion: q (=1 beat)
+    { timeSignature: "2/4",
+      questionNotes:  [qn("16"), qn("8"), qn("16")],
+      completionNotes:[cn("q")] },
+
+    // B4 · 6/8 · given: q+q. (=5 eighths, syncopated) · completion: 8 (=1 eighth)
+    { timeSignature: "6/8",
+      questionNotes:  [qn("q"), qn("q", { dots: 1 })],
+      completionNotes:[cn("8")] },
+
+    // B5 · 9/8 · given: q.+8+q (=6 eighths) · completion: q. (=3 eighths)
+    { timeSignature: "9/8",
+      questionNotes:  [qn("q", { dots: 1 }), qn("8"), qn("q")],
+      completionNotes:[cn("q", { dots: 1 })] },
+
+    // B6 · 6/8 · given: q-rest+8.+16 (=4 eighths) · completion: q (=2 eighths)
+    { timeSignature: "6/8",
+      questionNotes:  [qn("q", { isRest: true }), qn("8", { dots: 1 }), qn("16")],
+      completionNotes:[cn("q")] },
+  ],
 ];
 
 // ── Notes estranyes: 4-measure fragments ──────────────────────────────────────
@@ -877,19 +901,14 @@ function generateMeterKeyExercise(num: number): ExamExercise {
 }
 
 function generateCompleteBarExercise(num: number): ExamExercise {
-  const frag = COMPLETE_BAR_FRAGMENTS[Math.floor(Math.random() * COMPLETE_BAR_FRAGMENTS.length)];
+  const set = COMPLETE_BAR_SETS[Math.floor(Math.random() * COMPLETE_BAR_SETS.length)];
   return {
     type: "completar_compas",
     number: num,
     title: "Completar compàs",
-    instructions: "Completa el compàs afegint la(es) figura(es) que falta(en) per tal que sumi el valor correcte.",
-    data: { measures: frag.partialMeasures, timeSignature: frag.timeSignature, keySignature: frag.keySignature },
-    solution: {
-      measures: frag.fullMeasures,
-      timeSignature: frag.timeSignature,
-      keySignature: frag.keySignature,
-      missingLabel: frag.missingLabel,
-    },
+    instructions: "Completa cada compàs afegint les figures que falten. La primera figura és donada.",
+    data: { items: set },
+    solution: { items: set },
   };
 }
 
