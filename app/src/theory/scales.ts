@@ -7,9 +7,6 @@ const SCALE_INTERVALS: Record<ScaleType, number[]> = {
   harmonic_minor: [2, 1, 2, 2, 1, 3, 1],
 };
 
-const CHROMATIC_SHARPS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-const CHROMATIC_FLATS = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
-
 const DIATONIC_NAMES: NoteName[] = ["C", "D", "E", "F", "G", "A", "B"];
 const DIATONIC_SEMITONES = [0, 2, 4, 5, 7, 9, 11];
 
@@ -25,20 +22,10 @@ function noteToSemitone(name: NoteName, accidental: Accidental): number {
   return (base + mod + 12) % 12;
 }
 
-function useFlatKey(tonic: string): boolean {
-  const flatKeys = ["F", "Bb", "Eb", "Ab", "Db", "Gb", "Cb", "D", "G", "C", "F#", "Bb", "Eb"];
-  // Keys that prefer flats
-  return ["F", "Bb", "Eb", "Ab", "Db", "Gb", "Cb"].includes(tonic) ||
-    ["D", "G", "C"].includes(tonic) === false && tonic.endsWith("b");
-}
-
 export function buildScale(tonic: string, scaleType: ScaleType): Note[] {
   const parsed = parseNoteString(tonic);
   const tonicSemitone = noteToSemitone(parsed.name, parsed.accidental);
   const intervals = SCALE_INTERVALS[scaleType];
-
-  const preferFlats = tonic.includes("b") || ["F"].includes(tonic);
-  const chromatic = preferFlats ? CHROMATIC_FLATS : CHROMATIC_SHARPS;
 
   const tonicDiatonicIndex = DIATONIC_NAMES.indexOf(parsed.name);
   const notes: Note[] = [];
