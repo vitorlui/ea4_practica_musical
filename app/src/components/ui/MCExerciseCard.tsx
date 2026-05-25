@@ -2,10 +2,13 @@ import { useState, useCallback } from "react";
 import { Card } from "./Card";
 import { Button } from "./Button";
 import { Badge } from "./Badge";
+import { VexFlowRenderer } from "../music/VexFlowRenderer";
+import type { VexNote } from "../music/VexFlowRenderer";
 
 interface Props {
   question: string;
   stimulus?: string;
+  staffNotes?: VexNote[];
   options: string[];
   correctIndex: number;
   explanation: string;
@@ -14,7 +17,7 @@ interface Props {
   onAnswer?: (correct: boolean) => void;
 }
 
-export function MCExerciseCard({ question, stimulus, options, correctIndex, explanation, streak, onNext, onAnswer }: Props) {
+export function MCExerciseCard({ question, stimulus, staffNotes, options, correctIndex, explanation, streak, onNext, onAnswer }: Props) {
   const [selected, setSelected] = useState<number | null>(null);
 
   const answered = selected !== null;
@@ -42,7 +45,21 @@ export function MCExerciseCard({ question, stimulus, options, correctIndex, expl
 
       <Card title="Ejercicio">
         <p className="text-sm text-gray-700 font-medium mb-1">{question}</p>
-        {stimulus && <p className="text-xs text-gray-500 mb-3">{stimulus}</p>}
+        {staffNotes ? (
+          <div className="my-3 overflow-x-auto flex justify-center">
+            <VexFlowRenderer
+              notes={staffNotes}
+              keySignature="C"
+              timeSignature=""
+              width={300}
+              height={120}
+            />
+          </div>
+        ) : stimulus ? (
+          <p className="text-base font-mono text-center text-gray-700 my-3 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
+            {stimulus}
+          </p>
+        ) : null}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
           {options.map((opt, i) => {
             let cls = "w-full text-left px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors ";
