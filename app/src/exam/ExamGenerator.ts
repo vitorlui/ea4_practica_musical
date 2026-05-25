@@ -639,8 +639,11 @@ const NOTAS_EXTRANYAS_FRAGMENTS: NotasExtranyes[] = [
         { keys: ["d/4"], duration: "8" },
         { keys: ["c/4"], duration: "q" },
       ]},
-      // M4 · C4(w)
-      { notes: [{ keys: ["c/4"], duration: "w" }] },
+      // M4 · D4(q) C4(hd)  [4+12=16 ✓] — A on downbeat resolving to tonic
+      { notes: [
+        { keys: ["d/4"], duration: "q" },
+        { keys: ["c/4"], duration: "h", dots: 1 },
+      ]},
     ],
     annotatedMeasures: [
       { notes: [
@@ -667,13 +670,17 @@ const NOTAS_EXTRANYAS_FRAGMENTS: NotasExtranyes[] = [
         { keys: ["d/4"], duration: "8" },
         { keys: ["c/4"], duration: "q" },
       ]},
-      { notes: [{ keys: ["c/4"], duration: "w" }] },
+      { notes: [
+        { keys: ["d/4"], duration: "q", annotations: ["A"], annotationColors: ["#ea580c"] },
+        { keys: ["c/4"], duration: "h", dots: 1 },
+      ]},
     ],
     explanations: [
       "NP (nota de pas): Re4 (compàs 1) — connecta Do4 i Mi4 per grau conjunt ascendent",
       "B (bordadura): Mi4 (compàs 2) — grau inferior de Fa4; surt un grau i retorna immediatament",
       "B (bordadura): La4 (compàs 3) — grau superior de Sol4; surt un grau i retorna immediatament",
       "NP (nota de pas): Fa4 (compàs 3) — connecta Sol4 i Mi4 per grau conjunt descendent",
+      "A (apoggiatura): Re4 (compàs 4) — cau en temps fort, un grau per sobre de Do4 (tònica); resol per grau conjunt descendent",
     ],
   },
 
