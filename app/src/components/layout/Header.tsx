@@ -1,4 +1,5 @@
 import { useLayout } from "./LayoutContext";
+import logoHorizontal from "/logo-horizontal.png";
 
 export function Header() {
   const { toggleSidebar } = useLayout();
@@ -16,19 +17,10 @@ export function Header() {
       </button>
 
       <img
-        src="/logo.jpg"
-        alt="Sindicat d'Estudiants de Música"
-        className="h-10 w-10 rounded-full object-cover shrink-0 border-2 border-indigo-400"
+        src={logoHorizontal}
+        alt="El Sindicato EA4 — Lenguaje Musical"
+        className="h-10 object-contain"
       />
-
-      <div className="min-w-0 leading-tight">
-        <p className="font-bold text-sm sm:text-base tracking-tight leading-none">
-          Sindicat d'Estudiants
-        </p>
-        <p className="text-indigo-200 text-xs leading-tight">
-          de Música — EA4
-        </p>
-      </div>
     </header>
   );
 }
