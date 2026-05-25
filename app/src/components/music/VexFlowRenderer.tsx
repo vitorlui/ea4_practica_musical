@@ -15,8 +15,11 @@ export interface VexNote {
   accidentals?: (string | null)[];  // e.g. ["#", null] per key
   annotations?: string[];           // text labels above each note
   annotationColors?: string[];      // hex colors per annotation
+  bottomAnnotations?: string[];     // text labels below each note (e.g. F, D, SF)
+  bottomAnnotationColors?: string[];
   isRest?: boolean;
   dots?: number;
+  tieToNext?: boolean;              // tie this note to the next (including cross-barline)
 }
 
 interface VexFlowRendererProps {
@@ -91,10 +94,21 @@ export function VexFlowRenderer({
           });
         }
 
+        if (n.bottomAnnotations) {
+          n.bottomAnnotations.forEach((text, i) => {
+            if (!text) return;
+            const ann = new Annotation(text);
+            ann.setVerticalJustification(Annotation.VerticalJustify.BOTTOM);
+            const color = n.bottomAnnotationColors?.[i] ?? "#374151";
+            ann.setStyle({ fillStyle: color, strokeStyle: color });
+            sn.addModifier(ann, 0);
+          });
+        }
+
         return sn;
       });
 
-      const [numStr, denomStr] = timeSignature.split("/");
+      const [numStr, denomStr] = (timeSignature || "4/4").split("/");
       const num = parseInt(numStr ?? "4");
       const denom = parseInt(denomStr ?? "4");
 

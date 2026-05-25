@@ -1,10 +1,13 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { PageShell } from "../components/layout";
 import { Card, Button, Badge } from "../components/ui";
-import { VexFlowRenderer } from "../components/music/VexFlowRenderer";
-import type { VexNote } from "../components/music/VexFlowRenderer";
+import { MultiMeasureRenderer } from "../components/music/MultiMeasureRenderer";
+import { MetricTreeRenderer } from "../components/music/MetricTreeRenderer";
+import type { MeasureData } from "../components/music/MultiMeasureRenderer";
 import { randomSyncopationExercise } from "../data/syncopationExercises";
 import type { SyncopationExercise } from "../data/syncopationExercises";
+import { addBeatStrengths } from "../utils/metricLabels";
+import { classifyMeasures } from "../utils/beatTypeClassifier";
 
 type BeatLabel = "" | "N" | "S" | "C" | "R";
 type FeedbackState = "idle" | "checked";
@@ -17,13 +20,14 @@ const BEAT_TYPE_MAP: Record<string, BeatLabel> = {
 };
 
 const BEAT_FULL_NAME: Record<BeatLabel, string> = {
-  "": "Sin etiquetar",
+  "": "Sense etiquetar",
   N: "Normal",
   S: "Síncopa",
-  C: "Contratiempo",
-  R: "Silencio",
+  C: "Contratemps",
+  R: "Silenci",
 };
 
+// Colors for user-labeling mode
 const BEAT_COLOR: Record<BeatLabel, string> = {
   "": "#9ca3af",
   N: "#6b7280",
@@ -32,20 +36,69 @@ const BEAT_COLOR: Record<BeatLabel, string> = {
   R: "#64748b",
 };
 
+// Solution symbols shown in the staff
+const SOLUTION_SYMBOL: Record<BeatLabel, string> = {
+  "": "",
+  N: "",
+  S: ">",
+  C: "+",
+  R: "",
+};
+
+const SOLUTION_COLOR: Record<BeatLabel, string> = {
+  "": "#9ca3af",
+  N: "#9ca3af",
+  S: "#7c3aed",
+  C: "#ea580c",
+  R: "#64748b",
+};
+
 const LABEL_OPTIONS: { value: BeatLabel; label: string }[] = [
   { value: "N", label: "N — Normal" },
   { value: "S", label: "S — Síncopa" },
-  { value: "C", label: "C — Contratiempo" },
-  { value: "R", label: "R — Silencio/reposo" },
+  { value: "C", label: "C — Contratemps" },
+  { value: "R", label: "R — Silenci" },
 ];
+
+function totalNotes(ex: SyncopationExercise) {
+  return ex.measures.reduce((acc, m) => acc + m.notes.length, 0);
+}
+
+function buildAnnotatedMeasures(
+  ex: SyncopationExercise,
+  labels: BeatLabel[],
+  solutionMode: boolean,
+): MeasureData[] {
+  let noteIdx = 0;
+  return ex.measures.map((m) => ({
+    ...m,
+    notes: m.notes.map((n) => {
+      const label = labels[noteIdx++];
+      if (!label) return n;
+      const symbol = solutionMode ? SOLUTION_SYMBOL[label] : label;
+      const color = solutionMode ? SOLUTION_COLOR[label] : BEAT_COLOR[label];
+      if (!symbol) return n;
+      return {
+        ...n,
+        annotations: [symbol],
+        annotationColors: [color],
+      };
+    }),
+  }));
+}
 
 export default function SyncopationPage() {
   const [exercise, setExercise] = useState<SyncopationExercise>(randomSyncopationExercise);
   const [userLabels, setUserLabels] = useState<BeatLabel[]>(() =>
-    new Array(exercise.notes.length).fill("")
+    new Array(totalNotes(exercise)).fill("")
   );
   const [feedback, setFeedback] = useState<FeedbackState>("idle");
   const [showSolution, setShowSolution] = useState(false);
+  const [showBeatLabels, setShowBeatLabels] = useState(true);
+  const [showTree, setShowTree] = useState(true);
+
+  const correctLabels = classifyMeasures(exercise.measures, exercise.timeSignature)
+    .map((bt) => BEAT_TYPE_MAP[bt]);
 
   const setLabel = useCallback((index: number, label: BeatLabel) => {
     setUserLabels((prev) => {
@@ -56,61 +109,95 @@ export default function SyncopationPage() {
     setFeedback("idle");
   }, []);
 
-  const handleCheck = useCallback(() => {
-    setFeedback("checked");
-  }, []);
-
   const handleNext = useCallback(() => {
     const next = randomSyncopationExercise();
     setExercise(next);
-    setUserLabels(new Array(next.notes.length).fill(""));
+    setUserLabels(new Array(totalNotes(next)).fill(""));
     setFeedback("idle");
     setShowSolution(false);
   }, []);
 
-  const correctLabels = exercise.beatTypes.map((bt) => BEAT_TYPE_MAP[bt]);
+  const handleShowSolution = useCallback(() => {
+    setShowSolution(true);
+    setFeedback("checked");
+    setUserLabels(correctLabels);
+  }, [correctLabels]);
 
-  // Build annotated notes for display
-  function buildAnnotatedNotes(labels: BeatLabel[]): VexNote[] {
-    return exercise.notes.map((n, i) => ({
-      ...n,
-      annotations: labels[i] ? [labels[i]] : [],
-      annotationColors: labels[i] ? [BEAT_COLOR[labels[i]]] : [],
-    }));
-  }
+  const displayMeasures = useMemo(() => {
+    const inSolutionMode = feedback === "checked";
+    const annotated = buildAnnotatedMeasures(
+      exercise,
+      inSolutionMode ? correctLabels : userLabels,
+      inSolutionMode,
+    );
+    return showBeatLabels ? addBeatStrengths(annotated, exercise.timeSignature) : annotated;
+  }, [exercise, feedback, correctLabels, userLabels, showBeatLabels]);
 
-  const displayNotes = feedback === "checked"
-    ? buildAnnotatedNotes(correctLabels)
-    : buildAnnotatedNotes(userLabels);
+  const score =
+    feedback === "checked"
+      ? correctLabels.filter((cl, i) => cl === userLabels[i]).length
+      : 0;
 
-  const score = feedback === "checked"
-    ? correctLabels.filter((cl, i) => cl === userLabels[i]).length
-    : 0;
+  const numNotes = totalNotes(exercise);
 
   return (
-    <PageShell title="1. Síncopas y Contratiempos">
+    <PageShell title="1. Síncopas i Contratemps">
       <div className="space-y-4">
         <Card>
           <p className="text-gray-600 text-sm">
-            Etiqueta cada figura rítmica: <strong>S</strong> = Síncopa, <strong>C</strong> = Contratiempo, <strong>N</strong> = Normal, <strong>R</strong> = Silencio/reposo.
+            Etiqueta cada figura rítmica:{" "}
+            <strong>S</strong> = Síncopa (<strong>&gt;</strong>),{" "}
+            <strong>C</strong> = Contratemps (<strong>+</strong>),{" "}
+            <strong>N</strong> = Normal,{" "}
+            <strong>R</strong> = Silenci.
           </p>
+          <div className="flex gap-4 mt-2 flex-wrap">
+            <label className="flex items-center gap-1 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showBeatLabels}
+                onChange={(e) => setShowBeatLabels(e.target.checked)}
+                className="rounded"
+              />
+              Mostrar temps (F / D / SF)
+            </label>
+            <label className="flex items-center gap-1 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showTree}
+                onChange={(e) => setShowTree(e.target.checked)}
+                className="rounded"
+              />
+              Mostrar arbre mètric
+            </label>
+          </div>
         </Card>
 
         {/* Staff */}
         <Card title={exercise.title}>
-          <VexFlowRenderer
-            notes={displayNotes}
-            timeSignature={exercise.timeSignature}
+          <MultiMeasureRenderer
+            measures={displayMeasures}
             keySignature={exercise.keySignature}
-            width={540}
-            height={155}
+            timeSignature={exercise.timeSignature}
+            measuresPerRow={2}
+            measureWidth={220}
+            rowHeight={155}
           />
+          {showTree && (
+            <div className="mt-2 border-t border-gray-100 pt-2">
+              <p className="text-xs text-gray-400 mb-1">Arbre mètric:</p>
+              <MetricTreeRenderer
+                timeSignature={exercise.timeSignature}
+                width={520}
+              />
+            </div>
+          )}
         </Card>
 
-        {/* Note labeling buttons */}
+        {/* Labeling buttons */}
         <Card title="Etiqueta cada figura">
-          <div className="space-y-3">
-            {exercise.notes.map((_n, i) => {
+          <div className="space-y-2">
+            {Array.from({ length: numNotes }, (_, i) => {
               const isCorrect = feedback === "checked" && userLabels[i] === correctLabels[i];
               return (
                 <div key={i} className="flex items-center gap-3 flex-wrap">
@@ -122,7 +209,7 @@ export default function SyncopationPage() {
                         onClick={() => setLabel(i, opt.value)}
                         disabled={feedback === "checked"}
                         className={[
-                          "px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors",
+                          "px-3 py-1 rounded-lg text-sm font-medium border transition-colors",
                           userLabels[i] === opt.value
                             ? "bg-indigo-600 text-white border-indigo-600"
                             : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50",
@@ -142,21 +229,17 @@ export default function SyncopationPage() {
             })}
           </div>
 
-          <div className="flex gap-3 mt-5">
+          <div className="flex gap-3 mt-5 flex-wrap">
             <Button
-              onClick={handleCheck}
+              onClick={() => setFeedback("checked")}
               disabled={userLabels.some((l) => l === "") || feedback === "checked"}
               variant="primary"
             >
-              Comprobar
+              Comprovar
             </Button>
-            <Button onClick={handleNext} variant="secondary">Siguiente</Button>
-            <Button
-              onClick={() => { setShowSolution(true); setFeedback("checked"); setUserLabels(correctLabels); }}
-              variant="ghost"
-              disabled={showSolution}
-            >
-              Ver solución
+            <Button onClick={handleNext} variant="secondary">Següent</Button>
+            <Button onClick={handleShowSolution} variant="ghost" disabled={showSolution}>
+              Veure solució
             </Button>
           </div>
         </Card>
@@ -164,29 +247,33 @@ export default function SyncopationPage() {
         {feedback === "checked" && (
           <Card>
             <div className="flex items-center gap-3">
-              <Badge color={score === exercise.notes.length ? "correct" : score > 0 ? "missing" : "incorrect"}>
-                {score}/{exercise.notes.length} correctas
+              <Badge color={score === numNotes ? "correct" : score > 0 ? "missing" : "incorrect"}>
+                {score}/{numNotes} correctes
               </Badge>
-              {score === exercise.notes.length && (
-                <span className="text-green-700 font-medium">¡Perfecto!</span>
+              {score === numNotes && (
+                <span className="text-green-700 font-medium">Perfecte!</span>
               )}
             </div>
           </Card>
         )}
 
         {showSolution && (
-          <Card title="Solución">
+          <Card title="Solució">
             <ul className="space-y-1 text-sm">
               {exercise.beatTypes.map((bt, i) => (
                 <li key={i} className="flex gap-3">
                   <span className="text-gray-400 w-20">Figura {i + 1}:</span>
-                  <span className="font-medium capitalize">{bt} ({BEAT_TYPE_MAP[bt]})</span>
+                  <span className="font-medium capitalize">
+                    {bt}
+                    {bt === "sincopa" && <span className="ml-1 text-purple-600 font-bold">&gt;</span>}
+                    {bt === "contratiempo" && <span className="ml-1 text-orange-600 font-bold">+</span>}
+                  </span>
                 </li>
               ))}
             </ul>
             <div className="mt-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-800 space-y-1">
-              <p><strong>Síncopa (S):</strong> Nota que empieza en tiempo débil y liga con el tiempo fuerte siguiente.</p>
-              <p><strong>Contratiempo (C):</strong> Nota breve en parte débil del tiempo, sin ligar al tiempo fuerte.</p>
+              <p><strong>Síncopa (&gt;):</strong> Nota que comença en temps dèbil i es prolonga ocupant el temps fort següent.</p>
+              <p><strong>Contratemps (+):</strong> Nota breu en la part dèbil del temps, sense lligar al temps fort.</p>
             </div>
           </Card>
         )}

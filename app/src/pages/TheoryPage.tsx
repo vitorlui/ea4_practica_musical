@@ -2,10 +2,23 @@ import { useState } from "react";
 import { PageShell } from "../components/layout";
 import { Card } from "../components/ui";
 
+interface TheoryStep {
+  title: string;
+  body: string;
+  highlight?: boolean;
+}
+
+interface TheoryTable {
+  headers: string[];
+  rows: (string | { text: string; badge?: "consonante" | "disonante" | "perfecta" | "imperfecta" })[][];
+}
+
 interface TheorySection {
   id: string;
   title: string;
-  content: string[];
+  content?: string[];
+  steps?: TheoryStep[];
+  table?: TheoryTable;
 }
 
 const THEORY_SECTIONS: TheorySection[] = [
@@ -20,12 +33,57 @@ const THEORY_SECTIONS: TheorySection[] = [
   },
   {
     id: "intervalos",
-    title: "Intervalos",
+    title: "Intervalos — Número y Calidad",
     content: [
       "Número del intervalo: contar las notas incluyendo las dos extremas (Do→Sol = 5ª).",
       "Calidad del intervalo: depende de los semitonos: 2ª mayor (2st), 2ª menor (1st), 3ª mayor (4st), 3ª menor (3st), 4ª justa (5st), 4ª aumentada (6st), 5ª justa (7st), 5ª disminuida (6st), 6ª mayor (9st), 6ª menor (8st), 7ª mayor (11st), 7ª menor (10st), 8ª justa (12st).",
-      "Intervalos consonantes: unísono, 3ª, 5ª, 6ª, 8ª. Disonantes: 2ª, 4ª (excepto con el bajo), 7ª.",
+      "Pueden ser mayores/menores: 2ª, 3ª, 6ª, 7ª. Suelen ser justos: 4ª, 5ª, 8ª. Aumentado = semitono más que mayor/justo. Disminuido = semitono menos que menor/justo.",
     ],
+  },
+  {
+    id: "consonancia-disonancia",
+    title: "Consonancia y Disonancia — Paso a paso",
+    steps: [
+      {
+        title: "¿Qué es la consonancia?",
+        body: "Un intervalo consonante produce estabilidad y reposo al oído. No genera tensión armónica: puede 'quedarse' sin necesitar resolver. El oyente lo percibe como completo y estable.",
+      },
+      {
+        title: "¿Qué es la disonancia?",
+        body: "Un intervalo disonante produce tensión e inestabilidad. En la música tonal, tiende a moverse ('resolver') hacia una consonancia. No es feo — es energía que busca reposo.",
+      },
+      {
+        title: "Consonancias perfectas",
+        body: "Unísono (1ª), 5ª justa, 8ª justa. Máximo reposo. Sonido 'abierto' o 'hueco'. Son tan estables que en la armonía clásica se evita terminar solo en ellas (demasiado vacío).",
+      },
+      {
+        title: "Consonancias imperfectas",
+        body: "3ª mayor, 3ª menor, 6ª mayor, 6ª menor. Reposo cálido y pleno. Son las más usadas en la armonía tonal porque suenan completas sin ser rígidas. Los acordes mayores y menores se construyen sobre 3ªs.",
+      },
+      {
+        title: "Intervalos disonantes",
+        body: "2ª mayor y menor (alta tensión), 7ª mayor y menor (fuerte tensión, quiere resolver), 4ª justa* (disonante respecto al bajo en armonía clásica), 4ª aumentada y 5ª disminuida — el 'trítono', máxima disonancia, llamado diabolus in musica. Todos los aumentados y disminuidos son disonantes.",
+      },
+      {
+        title: "Regla mnemotécnica para el examen",
+        body: "CONSONANTES → 1ª, 3ª, 5ª justa, 6ª, 8ª. DISONANTES → 2ª, 4ª, 7ª (y cualquier aumentado o disminuido excepto la 5ª justa). Memoriza: 'los pares 2–4–7 son disonantes; los impares 1–3–5–6–8 son consonantes'.",
+        highlight: true,
+      },
+    ],
+    table: {
+      headers: ["Intervalo", "Tipo", "Observación"],
+      rows: [
+        ["Unísono (1ª)", { text: "Consonancia perfecta", badge: "perfecta" }, "Mismo sonido, máximo reposo"],
+        ["2ª mayor / menor", { text: "Disonante", badge: "disonante" }, "Alta tensión, quiere moverse"],
+        ["3ª mayor / menor", { text: "Consonancia imperfecta", badge: "imperfecta" }, "Cálida, base de los acordes"],
+        ["4ª justa", { text: "Disonante*", badge: "disonante" }, "*Disonante respecto al bajo"],
+        ["4ª aum. / 5ª dis.", { text: "Disonante", badge: "disonante" }, "Trítono — diabolus in musica"],
+        ["5ª justa", { text: "Consonancia perfecta", badge: "perfecta" }, "Abierta, base de la armonía"],
+        ["6ª mayor / menor", { text: "Consonancia imperfecta", badge: "imperfecta" }, "Cálida, inversión de la 3ª"],
+        ["7ª mayor / menor", { text: "Disonante", badge: "disonante" }, "Fuerte tensión, resolución necesaria"],
+        ["8ª justa", { text: "Consonancia perfecta", badge: "perfecta" }, "Octava, sonido unísono ampliado"],
+      ],
+    },
   },
   {
     id: "tonalidades",
@@ -59,6 +117,13 @@ const THEORY_SECTIONS: TheorySection[] = [
   },
 ];
 
+const BADGE_STYLES: Record<string, string> = {
+  perfecta: "bg-indigo-100 text-indigo-700",
+  imperfecta: "bg-blue-100 text-blue-700",
+  consonante: "bg-green-100 text-green-700",
+  disonante: "bg-red-100 text-red-700",
+};
+
 export default function TheoryPage() {
   const [openSection, setOpenSection] = useState<string | null>("sincopa");
 
@@ -77,15 +142,96 @@ export default function TheoryPage() {
                 {openSection === section.id ? "−" : "+"}
               </span>
             </button>
+
             {openSection === section.id && (
-              <ul className="mt-3 space-y-2 border-t border-gray-100 pt-3">
-                {section.content.map((line, i) => (
-                  <li key={i} className="text-sm text-gray-700 leading-relaxed flex gap-2">
-                    <span className="text-indigo-400 mt-0.5 shrink-0">•</span>
-                    <span>{line}</span>
-                  </li>
-                ))}
-              </ul>
+              <div className="mt-3 border-t border-gray-100 pt-3 space-y-4">
+                {/* Plain bullet list */}
+                {section.content && (
+                  <ul className="space-y-2">
+                    {section.content.map((line, i) => (
+                      <li key={i} className="text-sm text-gray-700 leading-relaxed flex gap-2">
+                        <span className="text-indigo-400 mt-0.5 shrink-0">•</span>
+                        <span>{line}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {/* Numbered steps */}
+                {section.steps && (
+                  <ol className="space-y-3">
+                    {section.steps.map((step, i) => (
+                      <li
+                        key={i}
+                        className={[
+                          "flex gap-3 rounded-lg p-3",
+                          step.highlight
+                            ? "bg-indigo-50 border border-indigo-200"
+                            : "bg-gray-50",
+                        ].join(" ")}
+                      >
+                        <span
+                          className={[
+                            "flex-shrink-0 w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center mt-0.5",
+                            step.highlight
+                              ? "bg-indigo-600 text-white"
+                              : "bg-white border border-gray-300 text-gray-500",
+                          ].join(" ")}
+                        >
+                          {i + 1}
+                        </span>
+                        <div>
+                          <p className={["text-sm font-semibold mb-0.5", step.highlight ? "text-indigo-800" : "text-gray-800"].join(" ")}>
+                            {step.title}
+                          </p>
+                          <p className={["text-sm leading-relaxed", step.highlight ? "text-indigo-700" : "text-gray-600"].join(" ")}>
+                            {step.body}
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+
+                {/* Table */}
+                {section.table && (
+                  <div className="overflow-x-auto rounded-lg border border-gray-200">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                          {section.table.headers.map((h, i) => (
+                            <th key={i} className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                              {h}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {section.table.rows.map((row, ri) => (
+                          <tr key={ri} className="hover:bg-gray-50">
+                            {row.map((cell, ci) => (
+                              <td key={ci} className="px-3 py-2 text-gray-700 font-medium">
+                                {typeof cell === "string" ? (
+                                  cell
+                                ) : (
+                                  <span
+                                    className={[
+                                      "inline-block px-2 py-0.5 rounded text-xs font-semibold",
+                                      cell.badge ? BADGE_STYLES[cell.badge] : "",
+                                    ].join(" ")}
+                                  >
+                                    {cell.text}
+                                  </span>
+                                )}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
             )}
           </Card>
         ))}

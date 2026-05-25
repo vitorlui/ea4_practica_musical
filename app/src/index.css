@@ -17,4 +17,17 @@
   .print-page {
     page-break-after: always;
   }
+
+  /* ── Imprimir solució only ─────────────────────────── */
+  body.print-solution-only .exam-question-content {
+    display: none !important;
+  }
+  body.print-solution-only .answer-line {
+    display: none !important;
+  }
+  body.print-solution-only .solution-box {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+  }
 }

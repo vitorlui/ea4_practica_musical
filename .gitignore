@@ -1,0 +1,46 @@
+# Book images and exam samples (copyrighted material)
+imagenes_libro/
+Prova/
+
+# Theory source documents (copyrighted content)
+contexto_teoria.md
+contexto_teorico_ea4_lenguaje_musical_v2.md
+prompt_claude_code_practicador_ea4.md
+prompt_claude_code_practicador_ea4_v2.md
+
+# Dependencies
+app/node_modules/
+node_modules/
+
+# Build output
+app/dist/
+dist/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# TypeScript
+*.tsbuildinfo
+
+# Cache
+.cache/
+app/.cache/

@@ -1,113 +1,902 @@
-import { randomSyncopationExercise } from "../data/syncopationExercises";
-import { randomIntervalExercise } from "../data/intervalExercises";
-import { randomScaleExercise } from "../data/scaleExercises";
-import { randomKeySignatureExercise } from "../data/keySignatureExercises";
+import { SYNCOPATION_EXERCISES } from "../data/syncopationExercises";
+import { classifyMeasures } from "../utils/beatTypeClassifier";
+import { INTERVAL_EXERCISES, noteToVexKey } from "../data/intervalExercises";
+import { SCALE_EXERCISES } from "../data/scaleExercises";
+import { KEY_SIGNATURE_EXERCISES } from "../data/keySignatureExercises";
 import { buildScale, noteToSpanish } from "../theory/scales";
 import { getKeySignature, getRelativeKey } from "../theory/keys";
-import type { ExamData, ExamConfig, ExamExercise } from "../theory/types";
+import { addBeatStrengths } from "../utils/metricLabels";
+import {
+  TRANSPORT_INTERVALS, transposeMeasures, transposeKeySignature,
+} from "../utils/transpose";
+import type {
+  ExamData, ExamConfig, ExamExercise,
+  TransportConfig, SyncopaConfig, IntervalsConfig, ScalesConfig, KeySigConfig,
+} from "../theory/types";
+import type { MeasureData } from "../components/music/MultiMeasureRenderer";
 
-function generateSyncopaExercise(num: number): ExamExercise {
-  const ex = randomSyncopationExercise();
+function pickRandom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function filterOrAll<T>(arr: T[], predicate: (x: T) => boolean): T[] {
+  const filtered = arr.filter(predicate);
+  return filtered.length > 0 ? filtered : arr;
+}
+
+// ── Transport: source melodies only (transpositions computed dynamically) ────
+interface TransportFragment {
+  measures: MeasureData[];
+  keySignature: string;
+  timeSignature: string;
+}
+
+const TRANSPORT_FRAGMENTS: TransportFragment[] = [
+  // C major  2/4
+  {
+    keySignature: "C", timeSignature: "2/4",
+    measures: [
+      { notes: [{ keys: ["c/4"], duration: "q" }, { keys: ["e/4"], duration: "q" }] },
+      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["e/4"], duration: "q" }] },
+      { notes: [{ keys: ["f/4"], duration: "q" }, { keys: ["d/4"], duration: "q" }] },
+      { notes: [{ keys: ["e/4"], duration: "h" }] },
+    ],
+  },
+  // G major  3/4
+  {
+    keySignature: "G", timeSignature: "3/4",
+    measures: [
+      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }, { keys: ["b/4"], duration: "q" }] },
+      { notes: [{ keys: ["a/4"], duration: "h" }, { keys: ["g/4"], duration: "q" }] },
+      { notes: [{ keys: ["d/5"], duration: "q" }, { keys: ["b/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }] },
+      { notes: [{ keys: ["g/4"], duration: "hd", dots: 1 }] },
+    ],
+  },
+  // F major  4/4
+  {
+    keySignature: "F", timeSignature: "4/4",
+    measures: [
+      { notes: [{ keys: ["f/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "h" }] },
+      { notes: [{ keys: ["c/5"], duration: "q" }, { keys: ["bb/4"], duration: "q" }, { keys: ["a/4"], duration: "h" }] },
+      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }, { keys: ["bb/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }] },
+      { notes: [{ keys: ["f/4"], duration: "w" }] },
+    ],
+  },
+  // Bb major  2/4
+  {
+    keySignature: "Bb", timeSignature: "2/4",
+    measures: [
+      { notes: [{ keys: ["f/4"], duration: "q" }, { keys: ["bb/4"], duration: "q" }] },
+      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["f/4"], duration: "q" }] },
+      { notes: [{ keys: ["eb/4"], duration: "q" }, { keys: ["d/4"], duration: "q" }] },
+      { notes: [{ keys: ["c/4"], duration: "h" }] },
+    ],
+  },
+  // C major  3/4
+  {
+    keySignature: "C", timeSignature: "3/4",
+    measures: [
+      { notes: [{ keys: ["e/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }, { keys: ["c/5"], duration: "q" }] },
+      { notes: [{ keys: ["d/5"], duration: "h" }, { keys: ["b/4"], duration: "q" }] },
+      { notes: [{ keys: ["a/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }, { keys: ["f/4"], duration: "q" }] },
+      { notes: [{ keys: ["e/4"], duration: "hd", dots: 1 }] },
+    ],
+  },
+  // G major  4/4
+  {
+    keySignature: "G", timeSignature: "4/4",
+    measures: [
+      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }, { keys: ["b/4"], duration: "h" }] },
+      { notes: [{ keys: ["c/5"], duration: "q" }, { keys: ["b/4"], duration: "q" }, { keys: ["a/4"], duration: "h" }] },
+      { notes: [{ keys: ["d/5"], duration: "q" }, { keys: ["b/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }] },
+      { notes: [{ keys: ["g/4"], duration: "w" }] },
+    ],
+  },
+];
+
+// ── Anàlisi Mètric-Tonal: 4-measure fragments ────────────────────────────────
+// Student sees flat melody (no bar lines, no time sig).
+// Solution shows bar lines + time sig + degree annotations (I IV V VII).
+interface MetricTonalFragment {
+  measures: MeasureData[];         // correct barred measures (solution)
+  annotatedMeasures: MeasureData[]; // same + bottomAnnotations for I/IV/V/VII
+  keySignature: string;
+  timeSignature: string;
+  meterLabel: string;
+  keyLabel: string;
+  tonicLabel: string;
+  subdominantLabel: string;
+  dominantLabel: string;
+  leadingToneLabel: string;
+}
+
+const D_I  = "#1d4ed8"; // tonic    blue
+const D_IV = "#16a34a"; // subdominant green
+const D_V  = "#c2410c"; // dominant  orange
+const D_VII = "#dc2626"; // leading tone red
+
+function ann(label: string, color: string) {
+  return { bottomAnnotations: [label], bottomAnnotationColors: [color] };
+}
+
+const METRIC_TONAL_FRAGMENTS: MetricTonalFragment[] = [
+  // ── Sol major, 3/4 ───────────────────────────────────────────────────────
+  {
+    keySignature: "G", timeSignature: "3/4",
+    meterLabel: "3/4", keyLabel: "Sol major",
+    tonicLabel: "I (Tònica) = Sol", subdominantLabel: "IV (Subdominant) = Do",
+    dominantLabel: "V (Dominant) = Re", leadingToneLabel: "VII (Sensible) = Fa#",
+    measures: [
+      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }, { keys: ["b/4"], duration: "q" }] },
+      { notes: [{ keys: ["c/5"], duration: "q" }, { keys: ["d/5"], duration: "q" }, { keys: ["b/4"], duration: "q" }] },
+      { notes: [{ keys: ["a/4"], duration: "q" }, { keys: ["f#/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }] },
+      { notes: [{ keys: ["g/4"], duration: "hd", dots: 1 }] },
+    ],
+    annotatedMeasures: [
+      { notes: [
+        { keys: ["g/4"], duration: "q", ...ann("I", D_I) },
+        { keys: ["a/4"], duration: "q" },
+        { keys: ["b/4"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["c/5"], duration: "q", ...ann("IV", D_IV) },
+        { keys: ["d/5"], duration: "q", ...ann("V", D_V) },
+        { keys: ["b/4"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["a/4"], duration: "q" },
+        { keys: ["f#/4"], duration: "q", ...ann("VII", D_VII) },
+        { keys: ["g/4"], duration: "q", ...ann("I", D_I) },
+      ]},
+      { notes: [{ keys: ["g/4"], duration: "hd", dots: 1, ...ann("I", D_I) }] },
+    ],
+  },
+  // ── Re major, 2/4 ────────────────────────────────────────────────────────
+  {
+    keySignature: "D", timeSignature: "2/4",
+    meterLabel: "2/4", keyLabel: "Re major",
+    tonicLabel: "I (Tònica) = Re", subdominantLabel: "IV (Subdominant) = Sol",
+    dominantLabel: "V (Dominant) = La", leadingToneLabel: "VII (Sensible) = Do#",
+    measures: [
+      { notes: [{ keys: ["d/4"], duration: "q" }, { keys: ["e/4"], duration: "q" }] },
+      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["f#/4"], duration: "q" }] },
+      { notes: [{ keys: ["a/4"], duration: "q" }, { keys: ["c#/5"], duration: "q" }] },
+      { notes: [{ keys: ["d/4"], duration: "h" }] },
+    ],
+    annotatedMeasures: [
+      { notes: [
+        { keys: ["d/4"], duration: "q", ...ann("I", D_I) },
+        { keys: ["e/4"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["g/4"], duration: "q", ...ann("IV", D_IV) },
+        { keys: ["f#/4"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["a/4"], duration: "q", ...ann("V", D_V) },
+        { keys: ["c#/5"], duration: "q", ...ann("VII", D_VII) },
+      ]},
+      { notes: [{ keys: ["d/4"], duration: "h", ...ann("I", D_I) }] },
+    ],
+  },
+  // ── Fa major, 4/4 ────────────────────────────────────────────────────────
+  {
+    keySignature: "F", timeSignature: "4/4",
+    meterLabel: "4/4", keyLabel: "Fa major",
+    tonicLabel: "I (Tònica) = Fa", subdominantLabel: "IV (Subdominant) = Si♭",
+    dominantLabel: "V (Dominant) = Do", leadingToneLabel: "VII (Sensible) = Mi",
+    measures: [
+      { notes: [{ keys: ["f/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }, { keys: ["bb/4"], duration: "q" }] },
+      { notes: [{ keys: ["c/5"], duration: "h" }, { keys: ["a/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }] },
+      { notes: [{ keys: ["e/4"], duration: "q" }, { keys: ["f/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }] },
+      { notes: [{ keys: ["f/4"], duration: "w" }] },
+    ],
+    annotatedMeasures: [
+      { notes: [
+        { keys: ["f/4"], duration: "q", ...ann("I", D_I) },
+        { keys: ["g/4"], duration: "q" },
+        { keys: ["a/4"], duration: "q" },
+        { keys: ["bb/4"], duration: "q", ...ann("IV", D_IV) },
+      ]},
+      { notes: [
+        { keys: ["c/5"], duration: "h", ...ann("V", D_V) },
+        { keys: ["a/4"], duration: "q" },
+        { keys: ["g/4"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["e/4"], duration: "q", ...ann("VII", D_VII) },
+        { keys: ["f/4"], duration: "q", ...ann("I", D_I) },
+        { keys: ["g/4"], duration: "q" },
+        { keys: ["a/4"], duration: "q" },
+      ]},
+      { notes: [{ keys: ["f/4"], duration: "w", ...ann("I", D_I) }] },
+    ],
+  },
+  // ── La menor (harmònica), 3/4 ─────────────────────────────────────────────
+  {
+    keySignature: "C", timeSignature: "3/4",
+    meterLabel: "3/4", keyLabel: "La menor",
+    tonicLabel: "I (Tònica) = La", subdominantLabel: "IV (Subdominant) = Re",
+    dominantLabel: "V (Dominant) = Mi", leadingToneLabel: "VII (Sensible) = Sol#",
+    measures: [
+      { notes: [{ keys: ["a/4"], duration: "q" }, { keys: ["b/4"], duration: "q" }, { keys: ["c/5"], duration: "q" }] },
+      { notes: [{ keys: ["d/5"], duration: "q" }, { keys: ["e/5"], duration: "q" }, { keys: ["f/5"], duration: "q" }] },
+      { notes: [
+        { keys: ["g#/4"], duration: "q", accidentals: ["#"] },
+        { keys: ["e/5"], duration: "q" },
+        { keys: ["a/4"], duration: "q" },
+      ]},
+      { notes: [{ keys: ["a/4"], duration: "hd", dots: 1 }] },
+    ],
+    annotatedMeasures: [
+      { notes: [
+        { keys: ["a/4"], duration: "q", ...ann("I", D_I) },
+        { keys: ["b/4"], duration: "q" },
+        { keys: ["c/5"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["d/5"], duration: "q", ...ann("IV", D_IV) },
+        { keys: ["e/5"], duration: "q", ...ann("V", D_V) },
+        { keys: ["f/5"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["g#/4"], duration: "q", accidentals: ["#"], ...ann("VII", D_VII) },
+        { keys: ["e/5"], duration: "q", ...ann("V", D_V) },
+        { keys: ["a/4"], duration: "q", ...ann("I", D_I) },
+      ]},
+      { notes: [{ keys: ["a/4"], duration: "hd", dots: 1, ...ann("I", D_I) }] },
+    ],
+  },
+  // ── Mi menor (harmònica), 4/4 ─────────────────────────────────────────────
+  {
+    keySignature: "G", timeSignature: "4/4",
+    meterLabel: "4/4", keyLabel: "Mi menor",
+    tonicLabel: "I (Tònica) = Mi", subdominantLabel: "IV (Subdominant) = La",
+    dominantLabel: "V (Dominant) = Si", leadingToneLabel: "VII (Sensible) = Re#",
+    measures: [
+      { notes: [{ keys: ["e/4"], duration: "q" }, { keys: ["f#/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }] },
+      { notes: [{ keys: ["b/4"], duration: "h" }, { keys: ["g/4"], duration: "h" }] },
+      { notes: [
+        { keys: ["a/4"], duration: "q" },
+        { keys: ["b/4"], duration: "q" },
+        { keys: ["d#/5"], duration: "q", accidentals: ["#"] },
+        { keys: ["e/5"], duration: "q" },
+      ]},
+      { notes: [{ keys: ["e/4"], duration: "w" }] },
+    ],
+    annotatedMeasures: [
+      { notes: [
+        { keys: ["e/4"], duration: "q", ...ann("I", D_I) },
+        { keys: ["f#/4"], duration: "q" },
+        { keys: ["g/4"], duration: "q" },
+        { keys: ["a/4"], duration: "q", ...ann("IV", D_IV) },
+      ]},
+      { notes: [
+        { keys: ["b/4"], duration: "h", ...ann("V", D_V) },
+        { keys: ["g/4"], duration: "h" },
+      ]},
+      { notes: [
+        { keys: ["a/4"], duration: "q", ...ann("IV", D_IV) },
+        { keys: ["b/4"], duration: "q", ...ann("V", D_V) },
+        { keys: ["d#/5"], duration: "q", accidentals: ["#"], ...ann("VII", D_VII) },
+        { keys: ["e/5"], duration: "q", ...ann("I", D_I) },
+      ]},
+      { notes: [{ keys: ["e/4"], duration: "w", ...ann("I", D_I) }] },
+    ],
+  },
+  // ── Si♭ major, 3/4 ───────────────────────────────────────────────────────
+  {
+    keySignature: "Bb", timeSignature: "3/4",
+    meterLabel: "3/4", keyLabel: "Si♭ major",
+    tonicLabel: "I (Tònica) = Si♭", subdominantLabel: "IV (Subdominant) = Mi♭",
+    dominantLabel: "V (Dominant) = Fa", leadingToneLabel: "VII (Sensible) = La",
+    measures: [
+      { notes: [{ keys: ["bb/4"], duration: "q" }, { keys: ["c/5"], duration: "q" }, { keys: ["d/5"], duration: "q" }] },
+      { notes: [{ keys: ["eb/5"], duration: "q" }, { keys: ["f/5"], duration: "q" }, { keys: ["d/5"], duration: "q" }] },
+      { notes: [{ keys: ["a/4"], duration: "q" }, { keys: ["bb/4"], duration: "q" }, { keys: ["c/5"], duration: "q" }] },
+      { notes: [{ keys: ["bb/4"], duration: "hd", dots: 1 }] },
+    ],
+    annotatedMeasures: [
+      { notes: [
+        { keys: ["bb/4"], duration: "q", ...ann("I", D_I) },
+        { keys: ["c/5"], duration: "q" },
+        { keys: ["d/5"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["eb/5"], duration: "q", ...ann("IV", D_IV) },
+        { keys: ["f/5"], duration: "q", ...ann("V", D_V) },
+        { keys: ["d/5"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["a/4"], duration: "q", ...ann("VII", D_VII) },
+        { keys: ["bb/4"], duration: "q", ...ann("I", D_I) },
+        { keys: ["c/5"], duration: "q" },
+      ]},
+      { notes: [{ keys: ["bb/4"], duration: "hd", dots: 1, ...ann("I", D_I) }] },
+    ],
+  },
+  // ── Do major, 4/4 ────────────────────────────────────────────────────────
+  {
+    keySignature: "C", timeSignature: "4/4",
+    meterLabel: "4/4", keyLabel: "Do major",
+    tonicLabel: "I (Tònica) = Do", subdominantLabel: "IV (Subdominant) = Fa",
+    dominantLabel: "V (Dominant) = Sol", leadingToneLabel: "VII (Sensible) = Si",
+    measures: [
+      { notes: [{ keys: ["c/4"], duration: "q" }, { keys: ["e/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }] },
+      { notes: [{ keys: ["f/4"], duration: "h" }, { keys: ["e/4"], duration: "q" }, { keys: ["d/4"], duration: "q" }] },
+      { notes: [{ keys: ["b/4"], duration: "q" }, { keys: ["c/5"], duration: "q" }, { keys: ["a/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }] },
+      { notes: [{ keys: ["c/4"], duration: "w" }] },
+    ],
+    annotatedMeasures: [
+      { notes: [
+        { keys: ["c/4"], duration: "q", ...ann("I", D_I) },
+        { keys: ["e/4"], duration: "q" },
+        { keys: ["g/4"], duration: "q", ...ann("V", D_V) },
+        { keys: ["a/4"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["f/4"], duration: "h", ...ann("IV", D_IV) },
+        { keys: ["e/4"], duration: "q" },
+        { keys: ["d/4"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["b/4"], duration: "q", ...ann("VII", D_VII) },
+        { keys: ["c/5"], duration: "q", ...ann("I", D_I) },
+        { keys: ["a/4"], duration: "q" },
+        { keys: ["g/4"], duration: "q", ...ann("V", D_V) },
+      ]},
+      { notes: [{ keys: ["c/4"], duration: "w", ...ann("I", D_I) }] },
+    ],
+  },
+  // ── Re menor (harmònica), 2/4 ─────────────────────────────────────────────
+  {
+    keySignature: "F", timeSignature: "2/4",
+    meterLabel: "2/4", keyLabel: "Re menor",
+    tonicLabel: "I (Tònica) = Re", subdominantLabel: "IV (Subdominant) = Sol",
+    dominantLabel: "V (Dominant) = La", leadingToneLabel: "VII (Sensible) = Do#",
+    measures: [
+      { notes: [{ keys: ["d/4"], duration: "q" }, { keys: ["e/4"], duration: "q" }] },
+      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["f/4"], duration: "q" }] },
+      { notes: [
+        { keys: ["a/4"], duration: "q" },
+        { keys: ["c#/5"], duration: "q", accidentals: ["#"] },
+      ]},
+      { notes: [{ keys: ["d/4"], duration: "h" }] },
+    ],
+    annotatedMeasures: [
+      { notes: [
+        { keys: ["d/4"], duration: "q", ...ann("I", D_I) },
+        { keys: ["e/4"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["g/4"], duration: "q", ...ann("IV", D_IV) },
+        { keys: ["f/4"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["a/4"], duration: "q", ...ann("V", D_V) },
+        { keys: ["c#/5"], duration: "q", accidentals: ["#"], ...ann("VII", D_VII) },
+      ]},
+      { notes: [{ keys: ["d/4"], duration: "h", ...ann("I", D_I) }] },
+    ],
+  },
+  // ── Sol menor (harmònica), 3/4 ────────────────────────────────────────────
+  {
+    keySignature: "Bb", timeSignature: "3/4",
+    meterLabel: "3/4", keyLabel: "Sol menor",
+    tonicLabel: "I (Tònica) = Sol", subdominantLabel: "IV (Subdominant) = Do",
+    dominantLabel: "V (Dominant) = Re", leadingToneLabel: "VII (Sensible) = Fa#",
+    measures: [
+      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }, { keys: ["bb/4"], duration: "q" }] },
+      { notes: [{ keys: ["c/5"], duration: "q" }, { keys: ["d/5"], duration: "q" }, { keys: ["eb/5"], duration: "q" }] },
+      { notes: [
+        { keys: ["f#/5"], duration: "q", accidentals: ["#"] },
+        { keys: ["d/5"], duration: "q" },
+        { keys: ["g/4"], duration: "q" },
+      ]},
+      { notes: [{ keys: ["g/4"], duration: "hd", dots: 1 }] },
+    ],
+    annotatedMeasures: [
+      { notes: [
+        { keys: ["g/4"], duration: "q", ...ann("I", D_I) },
+        { keys: ["a/4"], duration: "q" },
+        { keys: ["bb/4"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["c/5"], duration: "q", ...ann("IV", D_IV) },
+        { keys: ["d/5"], duration: "q", ...ann("V", D_V) },
+        { keys: ["eb/5"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["f#/5"], duration: "q", accidentals: ["#"], ...ann("VII", D_VII) },
+        { keys: ["d/5"], duration: "q", ...ann("V", D_V) },
+        { keys: ["g/4"], duration: "q", ...ann("I", D_I) },
+      ]},
+      { notes: [{ keys: ["g/4"], duration: "hd", dots: 1, ...ann("I", D_I) }] },
+    ],
+  },
+  // ── La major, 4/4 ─────────────────────────────────────────────────────────
+  {
+    keySignature: "A", timeSignature: "4/4",
+    meterLabel: "4/4", keyLabel: "La major",
+    tonicLabel: "I (Tònica) = La", subdominantLabel: "IV (Subdominant) = Re",
+    dominantLabel: "V (Dominant) = Mi", leadingToneLabel: "VII (Sensible) = Sol#",
+    measures: [
+      { notes: [{ keys: ["a/4"], duration: "q" }, { keys: ["b/4"], duration: "q" }, { keys: ["c#/5"], duration: "q" }, { keys: ["d/5"], duration: "q" }] },
+      { notes: [{ keys: ["e/5"], duration: "h" }, { keys: ["c#/5"], duration: "h" }] },
+      { notes: [{ keys: ["d/5"], duration: "q" }, { keys: ["b/4"], duration: "q" }, { keys: ["g#/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }] },
+      { notes: [{ keys: ["a/4"], duration: "w" }] },
+    ],
+    annotatedMeasures: [
+      { notes: [
+        { keys: ["a/4"], duration: "q", ...ann("I", D_I) },
+        { keys: ["b/4"], duration: "q" },
+        { keys: ["c#/5"], duration: "q" },
+        { keys: ["d/5"], duration: "q", ...ann("IV", D_IV) },
+      ]},
+      { notes: [
+        { keys: ["e/5"], duration: "h", ...ann("V", D_V) },
+        { keys: ["c#/5"], duration: "h" },
+      ]},
+      { notes: [
+        { keys: ["d/5"], duration: "q", ...ann("IV", D_IV) },
+        { keys: ["b/4"], duration: "q" },
+        { keys: ["g#/4"], duration: "q", ...ann("VII", D_VII) },
+        { keys: ["a/4"], duration: "q", ...ann("I", D_I) },
+      ]},
+      { notes: [{ keys: ["a/4"], duration: "w", ...ann("I", D_I) }] },
+    ],
+  },
+  // ── Mi major, 2/4 ─────────────────────────────────────────────────────────
+  {
+    keySignature: "E", timeSignature: "2/4",
+    meterLabel: "2/4", keyLabel: "Mi major",
+    tonicLabel: "I (Tònica) = Mi", subdominantLabel: "IV (Subdominant) = La",
+    dominantLabel: "V (Dominant) = Si", leadingToneLabel: "VII (Sensible) = Re#",
+    measures: [
+      { notes: [{ keys: ["e/4"], duration: "q" }, { keys: ["f#/4"], duration: "q" }] },
+      { notes: [{ keys: ["a/4"], duration: "q" }, { keys: ["b/4"], duration: "q" }] },
+      { notes: [{ keys: ["d#/5"], duration: "q" }, { keys: ["e/5"], duration: "q" }] },
+      { notes: [{ keys: ["e/4"], duration: "h" }] },
+    ],
+    annotatedMeasures: [
+      { notes: [
+        { keys: ["e/4"], duration: "q", ...ann("I", D_I) },
+        { keys: ["f#/4"], duration: "q" },
+      ]},
+      { notes: [
+        { keys: ["a/4"], duration: "q", ...ann("IV", D_IV) },
+        { keys: ["b/4"], duration: "q", ...ann("V", D_V) },
+      ]},
+      { notes: [
+        { keys: ["d#/5"], duration: "q", ...ann("VII", D_VII) },
+        { keys: ["e/5"], duration: "q", ...ann("I", D_I) },
+      ]},
+      { notes: [{ keys: ["e/4"], duration: "h", ...ann("I", D_I) }] },
+    ],
+  },
+  // ── Si menor (harmònica), 4/4 ─────────────────────────────────────────────
+  {
+    keySignature: "D", timeSignature: "4/4",
+    meterLabel: "4/4", keyLabel: "Si menor",
+    tonicLabel: "I (Tònica) = Si", subdominantLabel: "IV (Subdominant) = Mi",
+    dominantLabel: "V (Dominant) = Fa#", leadingToneLabel: "VII (Sensible) = La#",
+    measures: [
+      { notes: [{ keys: ["b/4"], duration: "q" }, { keys: ["c#/5"], duration: "q" }, { keys: ["d/5"], duration: "q" }, { keys: ["e/5"], duration: "q" }] },
+      { notes: [{ keys: ["f#/5"], duration: "h" }, { keys: ["d/5"], duration: "h" }] },
+      { notes: [
+        { keys: ["e/5"], duration: "q" },
+        { keys: ["c#/5"], duration: "q" },
+        { keys: ["a#/4"], duration: "q", accidentals: ["#"] },
+        { keys: ["b/4"], duration: "q" },
+      ]},
+      { notes: [{ keys: ["b/4"], duration: "w" }] },
+    ],
+    annotatedMeasures: [
+      { notes: [
+        { keys: ["b/4"], duration: "q", ...ann("I", D_I) },
+        { keys: ["c#/5"], duration: "q" },
+        { keys: ["d/5"], duration: "q" },
+        { keys: ["e/5"], duration: "q", ...ann("IV", D_IV) },
+      ]},
+      { notes: [
+        { keys: ["f#/5"], duration: "h", ...ann("V", D_V) },
+        { keys: ["d/5"], duration: "h" },
+      ]},
+      { notes: [
+        { keys: ["e/5"], duration: "q", ...ann("IV", D_IV) },
+        { keys: ["c#/5"], duration: "q" },
+        { keys: ["a#/4"], duration: "q", accidentals: ["#"], ...ann("VII", D_VII) },
+        { keys: ["b/4"], duration: "q", ...ann("I", D_I) },
+      ]},
+      { notes: [{ keys: ["b/4"], duration: "w", ...ann("I", D_I) }] },
+    ],
+  },
+];
+
+// ── Completar compàs: 4 measures (1 shown incomplete, rest complete) ──────────
+interface CompleteBarFragment {
+  partialMeasures: MeasureData[];  // 4 measures shown to student, one has gap
+  fullMeasures: MeasureData[];     // 4 measures complete (solution)
+  timeSignature: string;
+  keySignature: string;
+  missingLabel: string;
+}
+
+const COMPLETE_BAR_FRAGMENTS: CompleteBarFragment[] = [
+  {
+    timeSignature: "4/4", keySignature: "C",
+    partialMeasures: [
+      { notes: [{ keys: ["c/4"], duration: "q" }, { keys: ["e/4"], duration: "q" }, { keys: ["g/4"], duration: "h" }] },
+      { notes: [{ keys: ["e/4"], duration: "q" }, { keys: ["d/4"], duration: "q" }] }, // incomplete: missing half note
+      { notes: [{ keys: ["c/4"], duration: "q" }, { keys: ["d/4"], duration: "q" }, { keys: ["e/4"], duration: "q" }, { keys: ["f/4"], duration: "q" }] },
+      { notes: [{ keys: ["g/4"], duration: "w" }] },
+    ],
+    fullMeasures: [
+      { notes: [{ keys: ["c/4"], duration: "q" }, { keys: ["e/4"], duration: "q" }, { keys: ["g/4"], duration: "h" }] },
+      { notes: [{ keys: ["e/4"], duration: "q" }, { keys: ["d/4"], duration: "q" }, { keys: ["c/4"], duration: "h" }] },
+      { notes: [{ keys: ["c/4"], duration: "q" }, { keys: ["d/4"], duration: "q" }, { keys: ["e/4"], duration: "q" }, { keys: ["f/4"], duration: "q" }] },
+      { notes: [{ keys: ["g/4"], duration: "w" }] },
+    ],
+    missingLabel: "Blanca (Do4) al compàs 2",
+  },
+  {
+    timeSignature: "3/4", keySignature: "G",
+    partialMeasures: [
+      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }, { keys: ["b/4"], duration: "q" }] },
+      { notes: [{ keys: ["d/5"], duration: "q" }, { keys: ["b/4"], duration: "q" }] }, // incomplete: missing 1 quarter
+      { notes: [{ keys: ["c/5"], duration: "q" }, { keys: ["b/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }] },
+      { notes: [{ keys: ["g/4"], duration: "hd", dots: 1 }] },
+    ],
+    fullMeasures: [
+      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }, { keys: ["b/4"], duration: "q" }] },
+      { notes: [{ keys: ["d/5"], duration: "q" }, { keys: ["b/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }] },
+      { notes: [{ keys: ["c/5"], duration: "q" }, { keys: ["b/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }] },
+      { notes: [{ keys: ["g/4"], duration: "hd", dots: 1 }] },
+    ],
+    missingLabel: "Negra (Sol4) al compàs 2",
+  },
+  {
+    timeSignature: "2/4", keySignature: "F",
+    partialMeasures: [
+      { notes: [{ keys: ["f/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }] },
+      { notes: [{ keys: ["a/4"], duration: "8" }, { keys: ["bb/4"], duration: "8" }] }, // incomplete: missing 2 eighth notes
+      { notes: [{ keys: ["c/5"], duration: "q" }, { keys: ["a/4"], duration: "q" }] },
+      { notes: [{ keys: ["f/4"], duration: "h" }] },
+    ],
+    fullMeasures: [
+      { notes: [{ keys: ["f/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }] },
+      { notes: [{ keys: ["a/4"], duration: "8" }, { keys: ["bb/4"], duration: "8" }, { keys: ["a/4"], duration: "8" }, { keys: ["g/4"], duration: "8" }] },
+      { notes: [{ keys: ["c/5"], duration: "q" }, { keys: ["a/4"], duration: "q" }] },
+      { notes: [{ keys: ["f/4"], duration: "h" }] },
+    ],
+    missingLabel: "Dues corxeres (La4 + Sol4) al compàs 2",
+  },
+];
+
+// ── Notes estranyes: 4-measure fragments ──────────────────────────────────────
+interface NotasExtranyes {
+  measures: MeasureData[];
+  annotatedMeasures: MeasureData[];  // with labels (for solution)
+  timeSignature: string;
+  keySignature: string;
+  explanations: string[];
+}
+
+const NOTAS_EXTRANYAS_FRAGMENTS: NotasExtranyes[] = [
+  {
+    timeSignature: "4/4", keySignature: "C",
+    measures: [
+      { notes: [{ keys: ["c/4"], duration: "q" }, { keys: ["d/4"], duration: "q" }, { keys: ["e/4"], duration: "h" }] },
+      { notes: [{ keys: ["e/4"], duration: "q" }, { keys: ["f/4"], duration: "q" }, { keys: ["g/4"], duration: "h" }] },
+      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "q" }, { keys: ["g/4"], duration: "q" }, { keys: ["e/4"], duration: "q" }] },
+      { notes: [{ keys: ["c/4"], duration: "w" }] },
+    ],
+    annotatedMeasures: [
+      { notes: [{ keys: ["c/4"], duration: "q" }, { keys: ["d/4"], duration: "q", annotations: ["NP"], annotationColors: ["#dc2626"] }, { keys: ["e/4"], duration: "h" }] },
+      { notes: [{ keys: ["e/4"], duration: "q" }, { keys: ["f/4"], duration: "q", annotations: ["NP"], annotationColors: ["#dc2626"] }, { keys: ["g/4"], duration: "h" }] },
+      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "q", annotations: ["B"], annotationColors: ["#7c3aed"] }, { keys: ["g/4"], duration: "q" }, { keys: ["e/4"], duration: "q" }] },
+      { notes: [{ keys: ["c/4"], duration: "w" }] },
+    ],
+    explanations: [
+      "NP (nota de pas): Re4 (compàs 1) — passa per grau conjunt entre Do4 i Mi4",
+      "NP (nota de pas): Fa4 (compàs 2) — passa per grau conjunt entre Mi4 i Sol4",
+      "B (bordadura): La4 (compàs 3) — ornament superior de Sol4 que retorna al mateix grau",
+    ],
+  },
+  {
+    timeSignature: "3/4", keySignature: "G",
+    measures: [
+      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "8" }, { keys: ["g/4"], duration: "8" }, { keys: ["b/4"], duration: "q" }] },
+      { notes: [{ keys: ["d/5"], duration: "h" }, { keys: ["c/5"], duration: "q" }] },
+      { notes: [{ keys: ["b/4"], duration: "q" }, { keys: ["c/5"], duration: "8" }, { keys: ["b/4"], duration: "8" }, { keys: ["a/4"], duration: "q" }] },
+      { notes: [{ keys: ["g/4"], duration: "hd", dots: 1 }] },
+    ],
+    annotatedMeasures: [
+      { notes: [{ keys: ["g/4"], duration: "q" }, { keys: ["a/4"], duration: "8", annotations: ["B"], annotationColors: ["#7c3aed"] }, { keys: ["g/4"], duration: "8" }, { keys: ["b/4"], duration: "q" }] },
+      { notes: [{ keys: ["d/5"], duration: "h" }, { keys: ["c/5"], duration: "q", annotations: ["NP"], annotationColors: ["#dc2626"] }] },
+      { notes: [{ keys: ["b/4"], duration: "q" }, { keys: ["c/5"], duration: "8", annotations: ["B"], annotationColors: ["#7c3aed"] }, { keys: ["b/4"], duration: "8" }, { keys: ["a/4"], duration: "q" }] },
+      { notes: [{ keys: ["g/4"], duration: "hd", dots: 1 }] },
+    ],
+    explanations: [
+      "B (bordadura): La4 (compàs 1) — ornament superior de Sol4",
+      "NP (nota de pas): Do5 (compàs 2) — nota de pas descendent entre Re5 i Si4",
+      "B (bordadura): Do5 (compàs 3) — ornament superior de Si4",
+    ],
+  },
+];
+
+// ── Interval helpers ─────────────────────────────────────────────────────────
+
+function intervalSemitones(number: number, quality: string): number {
+  const base: Record<number, number> = { 1:0, 2:2, 3:4, 4:5, 5:7, 6:9, 7:11, 8:12 };
+  const b = base[number] ?? 0;
+  if (quality === "justa" || quality === "mayor") return b;
+  if (quality === "menor") return b - 1;
+  if (quality === "aumentada") return b + 1;
+  // disminuida: perfect intervals -1, major/minor intervals -2
+  return (number === 1 || number === 4 || number === 5 || number === 8) ? b - 1 : b - 2;
+}
+
+function tonesLabel(st: number): string {
+  const t = Math.floor(st / 2);
+  const s = st % 2;
+  if (t === 0) return `${s} ST`;
+  if (s === 0) return `${t} T`;
+  return `${t} T + ${s} ST`;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const SINCOPA_SYMBOL: Record<string, string> = {
+  sincopa: ">",
+  contratiempo: "+",
+};
+const SINCOPA_COLOR: Record<string, string> = {
+  sincopa: "#7c3aed",
+  contratiempo: "#ea580c",
+};
+
+function buildSyncopaAnnotatedMeasures(
+  measures: MeasureData[],
+  beatTypes: string[],
+): MeasureData[] {
+  let idx = 0;
+  return measures.map((m) => ({
+    ...m,
+    notes: m.notes.map((n) => {
+      const bt = beatTypes[idx++] ?? "normal";
+      const symbol = SINCOPA_SYMBOL[bt];
+      if (!symbol) return n;
+      return { ...n, annotations: [symbol], annotationColors: [SINCOPA_COLOR[bt]] };
+    }),
+  }));
+}
+
+// ── Generators ────────────────────────────────────────────────────────────────
+
+function generateSyncopaExercise(num: number, cfg: SyncopaConfig): ExamExercise {
+  const pool = filterOrAll(SYNCOPATION_EXERCISES, f =>
+    cfg.meters.length === 0 || cfg.meters.includes(f.timeSignature),
+  );
+  const ex = pickRandom(pool);
+  const beatTypes = classifyMeasures(ex.measures, ex.timeSignature);
+  // Build annotated measures: top annotations (>/+) then bottom beat-strength labels (F/D/SF)
+  const withSymbols = buildSyncopaAnnotatedMeasures(ex.measures, beatTypes);
+  const annotatedMeasures = addBeatStrengths(withSymbols, ex.timeSignature);
   return {
     type: "sincopa",
     number: num,
-    title: "Síncopa y Contratiempo",
-    instructions:
-      "Indica encima de cada figura si es: S (síncopa), C (contratiempo), N (normal) o R (silencio).",
-    data: { exercise: ex },
+    title: "Síncopa i Contratemps",
+    instructions: "Indica sobre cada figura si és: S (síncopa), C (contratemps).",
+    data: { measures: ex.measures, keySignature: ex.keySignature, timeSignature: ex.timeSignature },
     solution: {
-      beatTypes: ex.beatTypes,
+      measures: annotatedMeasures,
+      keySignature: ex.keySignature,
+      timeSignature: ex.timeSignature,
     },
   };
 }
 
-function generateIntervalExercise(num: number): ExamExercise {
-  const ex = randomIntervalExercise();
+// Default interval pair used when no filter is configured
+const DEFAULT_INTERVAL_PAIR = ["2ª major ↑", "2ª major ↓"];
+
+function generateTransportExercise(num: number, tc: TransportConfig): ExamExercise {
+  // Pick source fragment
+  const fragPool = filterOrAll(TRANSPORT_FRAGMENTS, f =>
+    tc.keys.length === 0 || tc.keys.includes(f.keySignature),
+  );
+  const frag = pickRandom(fragPool);
+
+  // Pick intervals
+  const ivPool = tc.intervals.length > 0
+    ? TRANSPORT_INTERVALS.filter(iv => tc.intervals.includes(iv.label))
+    : TRANSPORT_INTERVALS.filter(iv => DEFAULT_INTERVAL_PAIR.includes(iv.label));
+  const ivSource = ivPool.length > 0 ? ivPool : TRANSPORT_INTERVALS;
+
+  const count = Math.max(1, Math.min(tc.count, ivSource.length));
+  const shuffledIvs = [...ivSource].sort(() => Math.random() - 0.5).slice(0, count);
+
+  const transpositions = shuffledIvs.map(iv => {
+    const transposedKs = transposeKeySignature(frag.keySignature, iv);
+    return {
+      measures: transposeMeasures(frag.measures, iv),
+      keySignature: transposedKs,
+      timeSignature: frag.timeSignature,
+      label: `${frag.keySignature} → ${transposedKs} (${iv.label})`,
+    };
+  });
+
   return {
-    type: "intervalos",
+    type: "transporte",
     number: num,
-    title: "Intervalos",
-    instructions: "Escribe el nombre del intervalo (número y calidad) entre las dos notas dadas.",
-    data: { exercise: ex },
-    solution: { label: ex.label, number: ex.number, quality: ex.quality },
+    title: "Transport",
+    instructions: "Transporta la melodia a cada un dels intervals indicats.",
+    data: {
+      measures: frag.measures,
+      keySignature: frag.keySignature,
+      timeSignature: frag.timeSignature,
+      intervals: shuffledIvs.map(iv => iv.label),
+    },
+    solution: { transpositions },
   };
 }
 
-function generateScaleExercise(num: number): ExamExercise {
-  const config = randomScaleExercise();
+function generateMeterKeyExercise(num: number): ExamExercise {
+  const frag = pickRandom(METRIC_TONAL_FRAGMENTS);
+  // Flatten all measure notes for student view (no bar lines)
+  const flatNotes = frag.measures.flatMap(m => m.notes);
+  return {
+    type: "compas_tonalidad",
+    number: num,
+    title: "Anàlisi Mètric-Tonal",
+    instructions: "Busca el compàs, posa les línies divisòries, indica la tonalitat i assenyala els graus tonals i la sensible.",
+    data: {
+      flatNotes,
+      keySignature: frag.keySignature,
+    },
+    solution: {
+      measures: frag.annotatedMeasures,
+      keySignature: frag.keySignature,
+      timeSignature: frag.timeSignature,
+      meterLabel: frag.meterLabel,
+      keyLabel: frag.keyLabel,
+      tonicLabel: frag.tonicLabel,
+      subdominantLabel: frag.subdominantLabel,
+      dominantLabel: frag.dominantLabel,
+      leadingToneLabel: frag.leadingToneLabel,
+    },
+  };
+}
+
+function generateIntervalExercise(num: number, cfg: IntervalsConfig): ExamExercise {
+  const pool = filterOrAll(INTERVAL_EXERCISES, f =>
+    cfg.qualities.length === 0 || cfg.qualities.includes(f.quality),
+  );
+
+  // Pick 6 exercises (with repetition if pool < 6)
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  const picks: typeof pool = [];
+  while (picks.length < 6) picks.push(...shuffled);
+  const six = picks.slice(0, 6);
+
+  type NoteShape = {
+    keys: string[]; duration: string;
+    accidentals?: (string | null)[];
+    bottomAnnotations?: string[];
+    bottomAnnotationColors?: string[];
+  };
+  const notes: NoteShape[] = [];
+  const solNotes: NoteShape[] = [];
+
+  for (const ex of six) {
+    const ascending = Math.random() > 0.5;
+    const [first, second] = ascending ? [ex.lower, ex.upper] : [ex.upper, ex.lower];
+    const fKey = noteToVexKey(first);
+    const sKey = noteToVexKey(second);
+    const fAcc = first.accidental ? [first.accidental] : undefined;
+    const sAcc = second.accidental ? [second.accidental] : undefined;
+
+    const st = intervalSemitones(ex.number, ex.quality);
+    const annLabel = `${ex.label} ${ascending ? "↑" : "↓"}`;
+    const stLabel = tonesLabel(st);
+
+    notes.push({ keys: [fKey], duration: "h", accidentals: fAcc });
+    notes.push({ keys: [sKey], duration: "h", accidentals: sAcc });
+
+    solNotes.push({ keys: [fKey], duration: "h", accidentals: fAcc });
+    solNotes.push({
+      keys: [sKey], duration: "h", accidentals: sAcc,
+      bottomAnnotations: [annLabel, stLabel],
+      bottomAnnotationColors: ["#1d4ed8", "#6b7280"],
+    });
+  }
+
+  return {
+    type: "intervalos",
+    number: num,
+    title: "Intervals",
+    instructions: "Analitza els següents intervals, escriu el nom i la seva qualificació.",
+    data: { notes },
+    solution: { notes: solNotes },
+  };
+}
+
+function generateCompleteBarExercise(num: number): ExamExercise {
+  const frag = COMPLETE_BAR_FRAGMENTS[Math.floor(Math.random() * COMPLETE_BAR_FRAGMENTS.length)];
+  return {
+    type: "completar_compas",
+    number: num,
+    title: "Completar compàs",
+    instructions: "Completa el compàs afegint la(es) figura(es) que falta(en) per tal que sumi el valor correcte.",
+    data: { measures: frag.partialMeasures, timeSignature: frag.timeSignature, keySignature: frag.keySignature },
+    solution: {
+      measures: frag.fullMeasures,
+      timeSignature: frag.timeSignature,
+      keySignature: frag.keySignature,
+      missingLabel: frag.missingLabel,
+    },
+  };
+}
+
+function generateScaleExercise(num: number, cfg: ScalesConfig): ExamExercise {
+  const pool = filterOrAll(SCALE_EXERCISES, f => {
+    const modeOk = cfg.modes.length === 0 || cfg.modes.includes(f.mode);
+    const typeOk = cfg.scaleTypes.length === 0 || cfg.scaleTypes.includes(f.scaleType);
+    return modeOk && typeOk;
+  });
+  const config = pickRandom(pool);
   const notes = buildScale(config.tonic, config.scaleType);
   const noteNames = notes.map(noteToSpanish);
   return {
     type: "escalas",
     number: num,
     title: "Escala",
-    instructions: `Escribe la escala de ${config.label} en clave de Sol.`,
+    instructions: `Escriu l'escala de ${config.label} en clau de Sol.`,
     data: { config, noteNames },
     solution: { type: config.scaleType, label: config.label, notes: noteNames },
   };
 }
 
-function generateKeySignatureExercise(num: number): ExamExercise {
-  const ex = randomKeySignatureExercise();
+function generateKeySignatureExercise(num: number, cfg: KeySigConfig): ExamExercise {
+  const pool = filterOrAll(KEY_SIGNATURE_EXERCISES, f => {
+    const modeOk = cfg.modes.length === 0 || cfg.modes.includes(f.mode);
+    const accOk = cfg.accidentalTypes.length === 0 || cfg.accidentalTypes.includes(f.accidentalType);
+    return modeOk && accOk;
+  });
+  const ex = pickRandom(pool);
   const ks = getKeySignature(ex.tonic, ex.mode);
   const relative = getRelativeKey(ex.tonic, ex.mode);
   return {
     type: "armadura",
     number: num,
     title: "Armadura",
-    instructions:
-      "Identifica la tonalidad mayor y menor de la siguiente armadura. Escribe las alteraciones correspondientes.",
+    instructions: "Identifica la tonalitat major i menor de la següent armadura. Escriu les alteracions corresponents.",
     data: { exercise: ex },
     solution: {
-      tonic: ex.tonic,
-      mode: ex.mode,
-      label: ex.label,
-      accidentals: ks.accidentals,
-      numAccidentals: ks.numAccidentals,
+      tonic: ex.tonic, mode: ex.mode, label: ex.label,
+      accidentals: ks.accidentals, numAccidentals: ks.numAccidentals,
       accidentalType: ks.accidentalType,
-      relative: `${relative.tonic} ${relative.mode === "major" ? "mayor" : "menor"}`,
+      relative: `${relative.tonic} ${relative.mode === "major" ? "major" : "menor"}`,
     },
   };
 }
 
-const EXERCISE_GENERATORS: Record<string, (num: number) => ExamExercise> = {
-  sincopa: generateSyncopaExercise,
-  transporte: (num) => ({
-    type: "transporte",
-    number: num,
-    title: "Transporte",
-    instructions: "Transporta la melodía indicada una 2ª mayor ascendente.",
-    data: {},
-    solution: {},
-  }),
-  compas_tonalidad: (num) => ({
-    type: "compas_tonalidad",
-    number: num,
-    title: "Compás y Tonalidad",
-    instructions: "Identifica el compás y la tonalidad del fragmento dado.",
-    data: {},
-    solution: {},
-  }),
-  intervalos: generateIntervalExercise,
-  completar_compas: (num) => ({
-    type: "completar_compas",
-    number: num,
-    title: "Completar compás",
-    instructions: "Completa el compás con las figuras que faltan.",
-    data: {},
-    solution: {},
-  }),
-  escalas: generateScaleExercise,
-  armadura: generateKeySignatureExercise,
-  notas_extranyas: (num) => ({
+function generateNotasExtranyes(num: number): ExamExercise {
+  const frag = NOTAS_EXTRANYAS_FRAGMENTS[Math.floor(Math.random() * NOTAS_EXTRANYAS_FRAGMENTS.length)];
+  return {
     type: "notas_extranyas",
     number: num,
-    title: "Notas extrañas",
-    instructions: "Identifica las notas de adorno y explica su función.",
-    data: {},
-    solution: {},
-  }),
-};
+    title: "Notes estranyes",
+    instructions: "Identifica i anomena les notes estranyes (notes de pas NP, bordadures B, etc.) del fragment.",
+    data: { measures: frag.measures, timeSignature: frag.timeSignature, keySignature: frag.keySignature },
+    solution: {
+      measures: frag.annotatedMeasures,
+      timeSignature: frag.timeSignature,
+      keySignature: frag.keySignature,
+      explanations: frag.explanations,
+    },
+  };
+}
 
 const DEFAULT_EXERCISE_ORDER = [
   "sincopa", "transporte", "compas_tonalidad", "intervalos",
@@ -115,14 +904,25 @@ const DEFAULT_EXERCISE_ORDER = [
 ];
 
 export function generateExam(config: ExamConfig): ExamData {
-  const exercises: ExamExercise[] = DEFAULT_EXERCISE_ORDER.map((type, i) => {
-    const gen = EXERCISE_GENERATORS[type];
-    return gen(i + 1);
-  });
+  const tc: TransportConfig = config.transportConfig ?? { count: 2, keys: [], intervals: [] };
+  const sc: SyncopaConfig = config.syncopaConfig ?? { meters: [] };
+  const ic: IntervalsConfig = config.intervalsConfig ?? { qualities: [] };
+  const scl: ScalesConfig = config.scalesConfig ?? { modes: [], scaleTypes: [] };
+  const ksc: KeySigConfig = config.keySigConfig ?? { modes: [], accidentalTypes: [] };
 
-  return {
-    config,
-    exercises,
-    generatedAt: new Date().toISOString(),
-  };
+  const exercises: ExamExercise[] = DEFAULT_EXERCISE_ORDER.map((type, i) => {
+    const n = i + 1;
+    switch (type) {
+      case "sincopa":          return generateSyncopaExercise(n, sc);
+      case "transporte":       return generateTransportExercise(n, tc);
+      case "compas_tonalidad": return generateMeterKeyExercise(n);
+      case "intervalos":       return generateIntervalExercise(n, ic);
+      case "completar_compas": return generateCompleteBarExercise(n);
+      case "escalas":          return generateScaleExercise(n, scl);
+      case "armadura":         return generateKeySignatureExercise(n, ksc);
+      case "notas_extranyas":  return generateNotasExtranyes(n);
+      default:                 return generateNotasExtranyes(n);
+    }
+  });
+  return { config, exercises, generatedAt: new Date().toISOString() };
 }

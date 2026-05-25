@@ -79,12 +79,40 @@ export interface ScaleExercise {
   notes: Note[];
 }
 
+export interface TransportConfig {
+  count: number;       // 1–3 transpositions to show, default 2
+  keys: string[];      // empty = any source key; e.g. ["C", "G"]
+  intervals: string[]; // empty = use defaults; e.g. ["2ª major ↑", "3ª major ↓"]
+}
+
+export interface SyncopaConfig {
+  meters: string[];    // empty = any; "2/4" | "3/4" | "4/4"
+}
+
+export interface IntervalsConfig {
+  qualities: string[]; // empty = any; "justa" | "mayor" | "menor" | "aumentada" | "disminuida"
+}
+
+export interface ScalesConfig {
+  modes: string[];     // empty = any; "major" | "minor"
+  scaleTypes: string[]; // empty = any; "major" | "natural_minor" | "harmonic_minor"
+}
+
+export interface KeySigConfig {
+  modes: string[];          // empty = any; "major" | "minor"
+  accidentalTypes: string[]; // empty = any; "sharp" | "flat" | "none"
+}
+
 export interface ExamConfig {
   exerciseCounts: Record<string, number>;
   title: string;
-  course: string;
   date: string;
   studentName: string;
+  transportConfig?: TransportConfig;
+  syncopaConfig?: SyncopaConfig;
+  intervalsConfig?: IntervalsConfig;
+  scalesConfig?: ScalesConfig;
+  keySigConfig?: KeySigConfig;
 }
 
 export type ExamExerciseType =

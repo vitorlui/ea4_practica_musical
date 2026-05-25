@@ -1,87 +1,142 @@
-import { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback } from "react";
 import { PageShell } from "../components/layout";
 import { Card, Button } from "../components/ui";
 import { VexFlowRenderer } from "../components/music/VexFlowRenderer";
+import { MultiMeasureRenderer } from "../components/music/MultiMeasureRenderer";
+import type { MeasureData } from "../components/music/MultiMeasureRenderer";
 import { generateExam } from "../exam/ExamGenerator";
 import type { ExamData, ExamExercise, ExamConfig } from "../theory/types";
 
-function ExamHeader({ config }: { config: ExamConfig }) {
+function ExamHeader({ config: _config }: { config: ExamConfig }) {
   return (
-    <div className="border border-gray-300 rounded-lg p-4 mb-6 print-page">
-      <div className="text-center mb-2">
-        <h1 className="text-lg font-bold">EXAMEN DE LENGUAJE MUSICAL EA4</h1>
+    <div className="border border-gray-300 rounded-lg p-4 mb-6">
+      <div className="text-center">
+        <h1 className="text-lg font-bold">EXAMEN DE LLENGUATGE MUSICAL EA4</h1>
         <p className="text-sm text-gray-600">El Sindicato EA4</p>
       </div>
-      <div className="grid grid-cols-2 gap-4 text-sm mt-3">
-        <div><span className="font-medium">Curso:</span> {config.course || "____________________"}</div>
-        <div><span className="font-medium">Data:</span> {config.date || "____________________"}</div>
-        <div className="col-span-2"><span className="font-medium">Nom:</span> {config.studentName || "____________________"}</div>
-      </div>
+    </div>
+  );
+}
+
+function SolutionBox({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="solution-box mt-3 p-3 bg-blue-50 border border-blue-200 rounded text-sm">
+      <span className="font-semibold text-blue-700 block mb-2">Solució:</span>
+      {children}
+    </div>
+  );
+}
+
+function MultiStaff({ measures, ks, ts }: { measures: MeasureData[]; ks: string; ts: string }) {
+  const n = measures.length;
+  const perRow = n <= 4 ? n : 4;
+  return (
+    <div className="overflow-x-auto">
+      <MultiMeasureRenderer
+        measures={measures}
+        keySignature={ks}
+        timeSignature={ts}
+        measuresPerRow={perRow}
+        measureWidth={160}
+        rowHeight={160}
+      />
     </div>
   );
 }
 
 function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; showSolution: boolean }) {
   const data = exercise.data as Record<string, unknown>;
-  const solution = exercise.solution as Record<string, unknown>;
+  const sol = exercise.solution as Record<string, unknown>;
+
+  const getMeasures = (src: Record<string, unknown>, key: string) =>
+    (src[key] as MeasureData[]) ?? [];
+  const str = (src: Record<string, unknown>, key: string) => (src[key] as string) ?? "";
 
   return (
     <div className="mb-8 border border-gray-200 rounded-lg p-4">
       <h2 className="text-base font-bold mb-1">
-        Ejercicio {exercise.number}: {exercise.title}
+        Exercici {exercise.number}: {exercise.title}
       </h2>
       <p className="text-sm text-gray-600 mb-3 italic">{exercise.instructions}</p>
 
-      {/* Specific exercise rendering */}
-      {exercise.type === "sincopa" && Boolean(data.exercise) && (
-        <div className="mb-3">
-          <VexFlowRenderer
-            notes={(data.exercise as { notes: { keys: string[]; duration: string; isRest?: boolean }[] }).notes}
-            timeSignature={(data.exercise as { timeSignature: string }).timeSignature}
-            keySignature={(data.exercise as { keySignature: string }).keySignature}
-            width={500}
-            height={130}
-          />
-        </div>
-      )}
+      {/* Question content — hidden in print-solution-only mode */}
+      <div className="exam-question-content">
 
-      {exercise.type === "intervalos" && Boolean(data.exercise) && (
-        <div className="mb-3">
+        {/* ── 1. Síncopa ─────────────────────────────────── */}
+        {exercise.type === "sincopa" && (
+          <MultiStaff
+            measures={getMeasures(data, "measures")}
+            ks={str(data, "keySignature")}
+            ts={str(data, "timeSignature")}
+          />
+        )}
+
+        {/* ── 2. Transport ───────────────────────────────── */}
+        {exercise.type === "transporte" && (() => {
+          const intervals = (data.intervals as string[]) ?? [];
+          return (
+            <>
+              <p className="text-xs text-gray-400 mb-1">Original:</p>
+              <MultiStaff
+                measures={getMeasures(data, "measures")}
+                ks={str(data, "keySignature")}
+                ts={str(data, "timeSignature")}
+              />
+              {!showSolution && intervals.map((ivLabel, i) => (
+                <div key={i} className="mt-4">
+                  <p className="text-xs text-gray-500 font-medium mb-1">
+                    Transport {intervals.length > 1 ? `${i + 1} — ` : ""}<strong>{ivLabel}</strong>:
+                  </p>
+                  <div className="border border-dashed border-gray-300 rounded h-28 bg-gray-50" />
+                </div>
+              ))}
+            </>
+          );
+        })()}
+
+        {/* ── 3. Anàlisi Mètric-Tonal ────────────────────── */}
+        {exercise.type === "compas_tonalidad" && (
           <VexFlowRenderer
-            notes={[{
-              keys: [
-                `${(data.exercise as { lower: { name: string; accidental: string; octave: number } }).lower.name.toLowerCase()}${(data.exercise as { lower: { name: string; accidental: string; octave: number } }).lower.accidental}/${(data.exercise as { lower: { name: string; accidental: string; octave: number } }).lower.octave}`,
-                `${(data.exercise as { upper: { name: string; accidental: string; octave: number } }).upper.name.toLowerCase()}${(data.exercise as { upper: { name: string; accidental: string; octave: number } }).upper.accidental}/${(data.exercise as { upper: { name: string; accidental: string; octave: number } }).upper.octave}`,
-              ],
-              duration: "h",
-              accidentals: [
-                (data.exercise as { lower: { accidental: string } }).lower.accidental || null,
-                (data.exercise as { upper: { accidental: string } }).upper.accidental || null,
-              ],
-            }]}
+            notes={(data.flatNotes as Parameters<typeof VexFlowRenderer>[0]["notes"]) ?? []}
+            keySignature={str(data, "keySignature")}
             timeSignature=""
-            keySignature="C"
-            width={260}
+            width={720}
             height={160}
           />
-          {!showSolution && <div className="h-8 border-b border-gray-400 mt-2 w-48 mx-auto" />}
-        </div>
-      )}
+        )}
 
-      {exercise.type === "escalas" && (
-        <div className="mb-3">
-          <p className="text-sm text-gray-500">
-            Escala: {(data as { config: { label: string } }).config?.label}
-          </p>
-          {/* Empty staff for student to write */}
-          <div className="my-2 border border-gray-200 rounded p-2 bg-gray-50 h-24 flex items-center justify-center text-gray-300 text-sm">
-            [Pentagrama para escribir]
+        {/* ── 4. Intervals ───────────────────────────────── */}
+        {exercise.type === "intervalos" && (
+          <VexFlowRenderer
+            notes={(data.notes as Parameters<typeof VexFlowRenderer>[0]["notes"]) ?? []}
+            keySignature="C"
+            timeSignature=""
+            width={900}
+            height={160}
+          />
+        )}
+
+        {/* ── 5. Completar compàs ────────────────────────── */}
+        {exercise.type === "completar_compas" && (
+          <>
+            <p className="text-xs text-gray-500 mb-1 font-medium">Fragment incomplet:</p>
+            <MultiStaff
+              measures={getMeasures(data, "measures")}
+              ks={str(data, "keySignature")}
+              ts={str(data, "timeSignature")}
+            />
+          </>
+        )}
+
+        {/* ── 6. Escales ─────────────────────────────────── */}
+        {exercise.type === "escalas" && (
+          <div className="border border-dashed border-gray-300 rounded h-24 bg-gray-50 flex items-center justify-center text-gray-300 text-sm">
+            [Pentagrama per escriure]
           </div>
-        </div>
-      )}
+        )}
 
-      {exercise.type === "armadura" && Boolean(data.exercise) && (
-        <div className="mb-3">
+        {/* ── 7. Armadura ────────────────────────────────── */}
+        {exercise.type === "armadura" && Boolean(data.exercise) && (
           <VexFlowRenderer
             notes={[{ keys: ["b/4"], duration: "wr", isRest: true }]}
             keySignature={(data.exercise as { tonic: string }).tonic}
@@ -89,37 +144,183 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
             width={260}
             height={120}
           />
-        </div>
-      )}
+        )}
 
-      {/* Answer space (hidden when solution shown) */}
-      {!showSolution && exercise.type !== "escalas" && (
-        <div className="mt-2 h-10 border-b border-gray-300 w-64" />
-      )}
+        {/* ── 8. Notes estranyes ─────────────────────────── */}
+        {exercise.type === "notas_extranyas" && (
+          <MultiStaff
+            measures={getMeasures(data, "measures")}
+            ks={str(data, "keySignature")}
+            ts={str(data, "timeSignature")}
+          />
+        )}
 
-      {/* Solution block */}
+        {/* Answer line */}
+        {!showSolution && ["compas_tonalidad", "armadura"].includes(exercise.type) && (
+          <div className="answer-line mt-3 h-8 border-b border-gray-300 w-64" />
+        )}
+      </div>
+
+      {/* Solution */}
       {showSolution && (
-        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded text-sm">
-          <span className="font-semibold text-blue-700">Solución: </span>
+        <SolutionBox>
           {exercise.type === "sincopa" && (
-            <span>{(solution.beatTypes as string[]).join(" — ")}</span>
+            <>
+              <MultiStaff
+                measures={getMeasures(sol, "measures")}
+                ks={str(sol, "keySignature")}
+                ts={str(sol, "timeSignature")}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                <span className="text-purple-600 font-bold">&gt;</span> Síncopa &nbsp;
+                <span className="text-orange-600 font-bold">+</span> Contratemps
+              </p>
+              <div className="mt-2 text-xs text-gray-600 space-y-0.5 border-t border-blue-100 pt-2">
+                <p><strong>Síncopa (S):</strong> figura que comença en temps dèbil (o part dèbil) i es prolonga fins al temps fort següent, desplaçant l'accent rítmic.</p>
+                <p><strong>Contratemps (C):</strong> figura que ocupa exclusivament la part dèbil del temps, precedida i seguida de silenci o de la part forta.</p>
+              </div>
+            </>
           )}
+
+          {exercise.type === "transporte" && (() => {
+            type Transposition = { measures: MeasureData[]; keySignature: string; timeSignature: string; label: string };
+            const transpositions = (sol.transpositions as Transposition[]) ?? [];
+            return (
+              <>
+                {transpositions.map((t, i) => (
+                  <div key={i} className={i > 0 ? "mt-4 pt-3 border-t border-blue-200" : ""}>
+                    <p className="text-xs text-gray-500 mb-1">{t.label}</p>
+                    <MultiStaff
+                      measures={t.measures}
+                      ks={t.keySignature}
+                      ts={t.timeSignature}
+                    />
+                  </div>
+                ))}
+              </>
+            );
+          })()}
+
+          {exercise.type === "compas_tonalidad" && (
+            <>
+              <p className="font-medium mb-1">
+                Compàs: <strong>{str(sol, "meterLabel")}</strong> — Tonalitat: <strong>{str(sol, "keyLabel")}</strong>
+              </p>
+              <div className="mb-2 text-xs space-y-0.5">
+                <p><span className="font-semibold" style={{ color: "#1d4ed8" }}>I</span> — {str(sol, "tonicLabel")}</p>
+                <p><span className="font-semibold" style={{ color: "#16a34a" }}>IV</span> — {str(sol, "subdominantLabel")}</p>
+                <p><span className="font-semibold" style={{ color: "#c2410c" }}>V</span> — {str(sol, "dominantLabel")}</p>
+                <p><span className="font-semibold" style={{ color: "#dc2626" }}>VII</span> — {str(sol, "leadingToneLabel")}</p>
+              </div>
+              <MultiStaff
+                measures={getMeasures(sol, "measures")}
+                ks={str(sol, "keySignature")}
+                ts={str(sol, "timeSignature")}
+              />
+            </>
+          )}
+
           {exercise.type === "intervalos" && (
-            <span>{solution.label as string}</span>
+            <VexFlowRenderer
+              notes={(sol.notes as Parameters<typeof VexFlowRenderer>[0]["notes"]) ?? []}
+              keySignature="C"
+              timeSignature=""
+              width={900}
+              height={220}
+            />
           )}
+
+          {exercise.type === "completar_compas" && (
+            <>
+              <p className="text-xs text-gray-500 mb-1">
+                Figura afegida: <strong>{str(sol, "missingLabel")}</strong>
+              </p>
+              <MultiStaff
+                measures={getMeasures(sol, "measures")}
+                ks={str(sol, "keySignature")}
+                ts={str(sol, "timeSignature")}
+              />
+            </>
+          )}
+
           {exercise.type === "escalas" && (
-            <span>{(solution.notes as string[])?.join(" — ")}</span>
+            <p>{(sol.notes as string[])?.join(" — ")}</p>
           )}
+
           {exercise.type === "armadura" && (
-            <span>
-              {solution.label as string} — Relativa: {solution.relative as string}
-            </span>
+            <p>
+              {str(sol, "label")} — Relativa: <strong>{str(sol, "relative")}</strong>
+            </p>
           )}
-          {["transporte", "compas_tonalidad", "completar_compas", "notas_extranyas"].includes(exercise.type) && (
-            <span className="text-gray-400 italic">Ver teoría</span>
+
+          {exercise.type === "notas_extranyas" && (
+            <>
+              <MultiStaff
+                measures={getMeasures(sol, "measures")}
+                ks={str(sol, "keySignature")}
+                ts={str(sol, "timeSignature")}
+              />
+              <ul className="mt-2 space-y-1">
+                {(sol.explanations as string[])?.map((e, i) => (
+                  <li key={i} className="text-xs text-gray-700">• {e}</li>
+                ))}
+              </ul>
+              <div className="mt-3 text-xs text-gray-600 space-y-0.5 border-t border-blue-100 pt-2">
+                <p className="font-semibold text-gray-700">Repàs:</p>
+                <p><strong>Nota de pas (NP):</strong> nota estranys a l'acord que s'intercala entre dues notes de l'acord per moviment de grau conjunt, sense accent mètric.</p>
+                <p><strong>Bordadura (B):</strong> nota estranys a l'acord que s'aleja un grau (superior o inferior) d'una nota de l'acord i torna immediatament al mateix grau.</p>
+                <p><strong>Apoggiatura (A):</strong> nota d'adorn que es troba en posició accentuada (temps fort), un grau per sobre o per sota de la nota real, i resol per grau conjunt.</p>
+              </div>
+            </>
           )}
-        </div>
+        </SolutionBox>
       )}
+    </div>
+  );
+}
+
+function CfgCheckboxes({ options, value, onChange }: {
+  options: { value: string; label: string }[];
+  value: string[];
+  onChange: (v: string[]) => void;
+}) {
+  const toggle = (v: string) =>
+    onChange(value.includes(v) ? value.filter(x => x !== v) : [...value, v]);
+  return (
+    <div className="flex flex-wrap gap-2">
+      {options.map(opt => (
+        <label key={opt.value} className="flex items-center gap-1 cursor-pointer">
+          <input type="checkbox" checked={value.includes(opt.value)} onChange={() => toggle(opt.value)} className="rounded" />
+          <span>{opt.label}</span>
+        </label>
+      ))}
+    </div>
+  );
+}
+
+function CfgRadios({ options, value, name, onChange }: {
+  options: { value: string; label: string }[];
+  value: string;
+  name: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-3">
+      {options.map(opt => (
+        <label key={opt.value} className="flex items-center gap-1 cursor-pointer">
+          <input type="radio" name={name} value={opt.value} checked={value === opt.value} onChange={() => onChange(opt.value)} />
+          <span>{opt.label}</span>
+        </label>
+      ))}
+    </div>
+  );
+}
+
+function CfgSection({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="border-t border-gray-200 pt-3 first:border-t-0 first:pt-0">
+      <p className="font-semibold text-gray-600 text-xs uppercase tracking-wide mb-2">{label}</p>
+      <div className="space-y-2">{children}</div>
     </div>
   );
 }
@@ -127,66 +328,206 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
 export default function ExamPage() {
   const [examData, setExamData] = useState<ExamData | null>(null);
   const [showSolution, setShowSolution] = useState(false);
-  const [course, setCourse] = useState("4t curs — 2025/26");
-  const printRef = useRef<HTMLDivElement>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
+  // Ex. 1 — Síncopa
+  const [syncMeters, setSyncMeters] = useState<string[]>([]);
+
+  // Ex. 2 — Transport
+  const [transportCount, setTransportCount] = useState(2);
+  const [transportKeys, setTransportKeys] = useState<string[]>([]);
+  const [transportIntervals, setTransportIntervals] = useState<string[]>([]);
+
+  // Ex. 4 — Intervals
+  const [intQualities, setIntQualities] = useState<string[]>([]);
+
+  // Ex. 6 — Escales
+  const [scaleModes, setScaleModes] = useState<string[]>([]);
+  const [scaleTypes, setScaleTypes] = useState<string[]>([]);
+
+  // Ex. 7 — Armadura
+  const [ksModes, setKsModes] = useState<string[]>([]);
+  const [ksAccTypes, setKsAccTypes] = useState<string[]>([]);
 
   const handleGenerate = useCallback(() => {
     const config: ExamConfig = {
       exerciseCounts: {},
-      title: "Examen Lenguaje Musical EA4",
-      course,
+      title: "Examen Llenguatge Musical EA4",
       date: new Date().toLocaleDateString("ca-ES"),
       studentName: "",
+      syncopaConfig: { meters: syncMeters },
+      transportConfig: { count: transportCount, keys: transportKeys, intervals: transportIntervals },
+      intervalsConfig: { qualities: intQualities },
+      scalesConfig: { modes: scaleModes, scaleTypes },
+      keySigConfig: { modes: ksModes, accidentalTypes: ksAccTypes },
     };
     setExamData(generateExam(config));
     setShowSolution(false);
-  }, [course]);
+  }, [syncMeters, transportCount, transportKeys, transportIntervals, intQualities, scaleModes, scaleTypes, ksModes, ksAccTypes]);
 
-  const handlePrint = useCallback(() => {
+  const handlePrintExam = useCallback(() => {
+    document.body.classList.remove("print-solution-only");
     window.print();
   }, []);
 
+  const handlePrintSolution = useCallback(() => {
+    document.body.classList.add("print-solution-only");
+    setShowSolution(true);
+    // Wait for React to re-render before printing
+    setTimeout(() => {
+      window.print();
+      // Remove class after print dialog closes
+      const cleanup = () => {
+        document.body.classList.remove("print-solution-only");
+        window.removeEventListener("afterprint", cleanup);
+      };
+      window.addEventListener("afterprint", cleanup);
+    }, 150);
+  }, []);
+
   return (
-    <PageShell title="Examen Aleatorio">
-      <div className="space-y-4">
-        {/* Config card */}
-        <Card title="Configuración" className="no-print">
-          <div className="flex flex-col sm:flex-row gap-4 items-end">
-            <div className="flex-1">
-              <label className="text-sm font-medium text-gray-700 block mb-1">Curso</label>
-              <input
-                type="text"
-                value={course}
-                onChange={(e) => setCourse(e.target.value)}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm w-full focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              />
-            </div>
+    <PageShell title="Examen Aleatori">
+      <div className="space-y-4 w-full">
+        <Card title="Configuració" className="no-print">
+          <div className="flex justify-end">
             <Button onClick={handleGenerate} variant="primary" size="lg">
               Generar examen
             </Button>
           </div>
+
+          <div className="mt-3">
+            <button
+              type="button"
+              onClick={() => setShowAdvanced(s => !s)}
+              className="text-xs text-blue-600 hover:underline focus:outline-none"
+            >
+              {showAdvanced ? "▲ Amagar configuració avançada" : "▼ Configuració avançada"}
+            </button>
+          </div>
+
+          {showAdvanced && (
+            <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200 text-sm space-y-4">
+
+              <CfgSection label="Ex. 1 — Síncopa i Contratemps">
+                <p className="text-xs text-gray-500">Compàs (buit = qualsevol)</p>
+                <CfgCheckboxes
+                  options={[{ value: "2/4", label: "2/4" }, { value: "3/4", label: "3/4" }, { value: "4/4", label: "4/4" }]}
+                  value={syncMeters}
+                  onChange={setSyncMeters}
+                />
+              </CfgSection>
+
+              <CfgSection label="Ex. 2 — Transport">
+                <p className="text-xs text-gray-500">Nombre de melodíes</p>
+                <div className="flex gap-2">
+                  {[1, 2, 3].map(n => (
+                    <button key={n} type="button" onClick={() => setTransportCount(n)}
+                      className={`px-3 py-1 rounded border text-sm ${transportCount === n ? "bg-blue-600 text-white border-blue-600" : "border-gray-300 text-gray-700 hover:bg-gray-100"}`}>
+                      {n}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Tonalitat d'origen (buit = qualsevol)</p>
+                <CfgCheckboxes
+                  options={[{ value: "C", label: "Do" }, { value: "G", label: "Sol" }, { value: "F", label: "Fa" }, { value: "Bb", label: "Si♭" }]}
+                  value={transportKeys}
+                  onChange={setTransportKeys}
+                />
+                <p className="text-xs text-gray-500 mt-1">Intervals (buit = aleatori)</p>
+                <CfgCheckboxes
+                  options={[
+                    { value: "2ª major ↑",  label: "2ª major ↑"  },
+                    { value: "2ª major ↓",  label: "2ª major ↓"  },
+                    { value: "2ª menor ↑",  label: "2ª menor ↑"  },
+                    { value: "2ª menor ↓",  label: "2ª menor ↓"  },
+                    { value: "3ª major ↑",  label: "3ª major ↑"  },
+                    { value: "3ª major ↓",  label: "3ª major ↓"  },
+                    { value: "3ª menor ↑",  label: "3ª menor ↑"  },
+                    { value: "3ª menor ↓",  label: "3ª menor ↓"  },
+                  ]}
+                  value={transportIntervals}
+                  onChange={setTransportIntervals}
+                />
+              </CfgSection>
+
+              <CfgSection label="Ex. 4 — Intervals">
+                <p className="text-xs text-gray-500">Qualitat (buit = qualsevol)</p>
+                <CfgCheckboxes
+                  options={[
+                    { value: "justa", label: "Justa" },
+                    { value: "mayor", label: "Major" },
+                    { value: "menor", label: "Menor" },
+                    { value: "aumentada", label: "Augmentada" },
+                    { value: "disminuida", label: "Disminuïda" },
+                  ]}
+                  value={intQualities}
+                  onChange={setIntQualities}
+                />
+              </CfgSection>
+
+              <CfgSection label="Ex. 6 — Escales">
+                <p className="text-xs text-gray-500">Mode (buit = qualsevol)</p>
+                <CfgCheckboxes
+                  options={[{ value: "major", label: "Major" }, { value: "minor", label: "Menor" }]}
+                  value={scaleModes}
+                  onChange={setScaleModes}
+                />
+                <p className="text-xs text-gray-500 mt-1">Tipus (buit = qualsevol)</p>
+                <CfgCheckboxes
+                  options={[
+                    { value: "major", label: "Natural major" },
+                    { value: "natural_minor", label: "Menor natural" },
+                    { value: "harmonic_minor", label: "Menor harmònica" },
+                  ]}
+                  value={scaleTypes}
+                  onChange={setScaleTypes}
+                />
+              </CfgSection>
+
+              <CfgSection label="Ex. 7 — Armadura">
+                <p className="text-xs text-gray-500">Mode (buit = qualsevol)</p>
+                <CfgCheckboxes
+                  options={[{ value: "major", label: "Major" }, { value: "minor", label: "Menor" }]}
+                  value={ksModes}
+                  onChange={setKsModes}
+                />
+                <p className="text-xs text-gray-500 mt-1">Alteracions (buit = qualsevol)</p>
+                <CfgCheckboxes
+                  options={[
+                    { value: "sharp", label: "Sostinguts (#)" },
+                    { value: "flat", label: "Bemols (♭)" },
+                    { value: "none", label: "Sense alteracions" },
+                  ]}
+                  value={ksAccTypes}
+                  onChange={setKsAccTypes}
+                />
+              </CfgSection>
+
+            </div>
+          )}
         </Card>
 
         {examData && (
           <>
-            {/* Action buttons */}
-            <div className="flex gap-3 no-print">
-              <Button onClick={handlePrint} variant="secondary">
-                Imprimir / Guardar PDF
+            <div className="flex gap-3 no-print flex-wrap">
+              <Button onClick={handlePrintExam} variant="secondary">
+                Imprimir examen
+              </Button>
+              <Button onClick={handlePrintSolution} variant="primary">
+                Imprimir solució
               </Button>
               <Button
                 onClick={() => setShowSolution((s) => !s)}
                 variant={showSolution ? "danger" : "ghost"}
               >
-                {showSolution ? "Ocultar soluciones" : "Mostrar soluciones"}
+                {showSolution ? "Amagar solucions" : "Mostrar solucions"}
               </Button>
               <Button onClick={handleGenerate} variant="ghost">
-                Nuevo examen
+                Nou examen
               </Button>
             </div>
 
-            {/* Printable exam */}
-            <div ref={printRef} className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 overflow-x-auto w-full">
               <ExamHeader config={examData.config} />
               {examData.exercises.map((ex) => (
                 <ExerciseBlock key={ex.number} exercise={ex} showSolution={showSolution} />
@@ -199,7 +540,7 @@ export default function ExamPage() {
           <Card>
             <div className="text-center py-8 text-gray-400">
               <p className="text-4xl mb-3">📄</p>
-              <p>Pulsa "Generar examen" para crear un examen con los 8 bloques aleatorios.</p>
+              <p>Prem "Generar examen" per crear un examen amb els 8 blocs aleatoris.</p>
             </div>
           </Card>
         )}
