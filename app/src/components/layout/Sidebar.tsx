@@ -15,6 +15,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/completar-compas", label: "Completar compás",         icon: "✏️", unitat: "U1"   },
   { to: "/compas-tonalidad", label: "Compás y Tonalidad",       icon: "🎼", unitat: "U2–4" },
   { to: "/armadura",         label: "Armadura",                 icon: "🔑", unitat: "U3–4" },
+  { to: "/circulo-quintas",  label: "Círculo de Quintas",       icon: "⭕", unitat: "U3–4" },
   { to: "/notas-extranyas",  label: "Notas extrañas",           icon: "🎶", unitat: "U5"   },
   { to: "/escalas",          label: "Escalas",                  icon: "🎹", unitat: "U6–7" },
   { to: "/grados-tonales",   label: "Grados tonales",           icon: "🏛️", unitat: "U7"   },

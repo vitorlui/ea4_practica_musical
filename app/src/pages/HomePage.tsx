@@ -16,6 +16,7 @@ const EXERCISES: ExerciseCard[] = [
   { to: "/completar-compas", label: "Completar compás",         description: "Completa compases con las figuras correctas",                     icon: "✏️", unitat: "U1"   },
   { to: "/compas-tonalidad", label: "Compás y Tonalidad",       description: "Identifica el compás y la tonalidad de fragmentos musicales",     icon: "🎼", unitat: "U2–4" },
   { to: "/armadura",         label: "Armadura",                 description: "Reconoce armaduras y sus tonalidades mayor/menor",                icon: "🔑", unitat: "U3–4" },
+  { to: "/circulo-quintas",  label: "Círculo de Quintas",       description: "Organización tonal de las 12 tonalidades ordenadas por quintas",     icon: "⭕", unitat: "U3–4" },
   { to: "/notas-extranyas",  label: "Notas extrañas",           description: "Identifica notas de paso, bordaduras y apoyaturas",              icon: "🎶", unitat: "U5"   },
   { to: "/escalas",          label: "Escalas",                  description: "Identifica escalas mayor, menor natural y armónica",             icon: "🎹", unitat: "U6–7" },
   { to: "/grados-tonales",   label: "Grados tonales",           description: "I–VII: tónica, dominante, sensible y sus funciones",             icon: "🏛️", unitat: "U7"   },

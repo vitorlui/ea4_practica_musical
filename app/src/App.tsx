@@ -20,6 +20,7 @@ const EnarmoniaPage = React.lazy(() => import("./pages/EnarmoniaPage").catch(() 
 const AcordesPage = React.lazy(() => import("./pages/AcordesPage").catch(() => ({ default: () => <StubPage title="Acordes perfectos" description="Error cargando" /> })));
 const SemitonoPage = React.lazy(() => import("./pages/SemitonoPage").catch(() => ({ default: () => <StubPage title="Semitono" description="Error cargando" /> })));
 const NotasAdornoPage = React.lazy(() => import("./pages/NotasAdornoPage").catch(() => ({ default: () => <StubPage title="Notas de adorno" description="Error cargando" /> })));
+const CirculoQuintasPage = React.lazy(() => import("./pages/CirculoQuintasPage").catch(() => ({ default: () => <StubPage title="Círculo de Quintas" description="Error cargando" /> })));
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
             <Route path="/acordes" element={<AcordesPage />} />
             <Route path="/semitono" element={<SemitonoPage />} />
             <Route path="/notas-adorno" element={<NotasAdornoPage />} />
+            <Route path="/circulo-quintas" element={<CirculoQuintasPage />} />
             <Route path="/examen" element={<ExamPage />} />
             <Route path="/teoria" element={<TheoryPage />} />
             <Route path="*" element={<StubPage title="404" description="Página no encontrada" />} />
