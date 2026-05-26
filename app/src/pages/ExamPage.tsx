@@ -189,6 +189,81 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
           />
         )}
 
+        {/* ── 9. Enarmonies ──────────────────────────────── */}
+        {exercise.type === "enarmonia" && (() => {
+          type EnaItem = { questionNotes: VexNote[] };
+          const items = (data.items as EnaItem[]) ?? [];
+          return (
+            <div className="grid grid-cols-3 gap-x-4 gap-y-4">
+              {items.map((item, i) => (
+                <div key={i} className="flex flex-col items-center">
+                  <VexFlowRenderer
+                    notes={item.questionNotes}
+                    timeSignature=""
+                    keySignature="C"
+                    width={200}
+                    height={120}
+                    staveY={25}
+                  />
+                  <div className="mt-1 w-36 space-y-2">
+                    <div className="border-b border-gray-400 h-5" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+
+        {/* ── 10. Acords perfectes ───────────────────────── */}
+        {exercise.type === "acordes" && (() => {
+          type AcordItem = { questionNote: VexNote };
+          const items = (data.items as AcordItem[]) ?? [];
+          return (
+            <div className="grid grid-cols-3 gap-x-4 gap-y-4">
+              {items.map((item, i) => (
+                <div key={i} className="flex flex-col items-center">
+                  <VexFlowRenderer
+                    notes={[item.questionNote]}
+                    timeSignature=""
+                    keySignature="C"
+                    width={200}
+                    height={120}
+                    staveY={20}
+                  />
+                  <div className="mt-1 w-36 space-y-2">
+                    <div className="border-b border-gray-400 h-5" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+
+        {/* ── 11. Semitons ───────────────────────────────── */}
+        {exercise.type === "semitonos" && (() => {
+          type SemItem = { questionNotes: VexNote[] };
+          const items = (data.items as SemItem[]) ?? [];
+          return (
+            <div className="grid grid-cols-3 gap-x-4 gap-y-4">
+              {items.map((item, i) => (
+                <div key={i} className="flex flex-col items-center">
+                  <VexFlowRenderer
+                    notes={item.questionNotes}
+                    timeSignature=""
+                    keySignature="C"
+                    width={200}
+                    height={120}
+                    staveY={25}
+                  />
+                  <div className="mt-1 w-36 space-y-2">
+                    <div className="border-b border-gray-400 h-5" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+
         {/* Answer line */}
         {!showSolution && exercise.type === "compas_tonalidad" && (
           <div className="answer-line mt-3 h-8 border-b border-gray-300 w-64" />
@@ -350,6 +425,72 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
               </div>
             </>
           )}
+
+          {exercise.type === "enarmonia" && (() => {
+            type EnaItem = { solutionNotes: VexNote[]; enaLabel: string };
+            const items = (sol.items as EnaItem[]) ?? [];
+            return (
+              <div className="grid grid-cols-3 gap-x-4 gap-y-4">
+                {items.map((item, i) => (
+                  <div key={i} className="flex flex-col items-center">
+                    <VexFlowRenderer
+                      notes={item.solutionNotes}
+                      timeSignature=""
+                      keySignature="C"
+                      width={200}
+                      height={145}
+                      staveY={25}
+                    />
+                    <p className="text-center text-xs font-semibold text-blue-700 -mt-1">{item.enaLabel}</p>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+
+          {exercise.type === "acordes" && (() => {
+            type AcordItem = { solutionNote: VexNote; label: string; color: string };
+            const items = (sol.items as AcordItem[]) ?? [];
+            return (
+              <div className="grid grid-cols-3 gap-x-4 gap-y-4">
+                {items.map((item, i) => (
+                  <div key={i} className="flex flex-col items-center">
+                    <VexFlowRenderer
+                      notes={[item.solutionNote]}
+                      timeSignature=""
+                      keySignature="C"
+                      width={200}
+                      height={120}
+                      staveY={20}
+                    />
+                    <p className="text-center text-xs font-semibold" style={{ color: item.color }}>{item.label}</p>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+
+          {exercise.type === "semitonos" && (() => {
+            type SemItem = { solutionNotes: VexNote[]; typeLabel: string; color: string };
+            const items = (sol.items as SemItem[]) ?? [];
+            return (
+              <div className="grid grid-cols-3 gap-x-4 gap-y-4">
+                {items.map((item, i) => (
+                  <div key={i} className="flex flex-col items-center">
+                    <VexFlowRenderer
+                      notes={item.solutionNotes}
+                      timeSignature=""
+                      keySignature="C"
+                      width={200}
+                      height={145}
+                      staveY={25}
+                    />
+                    <p className="text-center text-xs font-semibold -mt-1" style={{ color: item.color }}>{item.typeLabel}</p>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
         </SolutionBox>
       )}
     </div>
@@ -368,6 +509,24 @@ function CfgCheckboxes({ options, value, onChange }: {
       {options.map(opt => (
         <label key={opt.value} className="flex items-center gap-1 cursor-pointer">
           <input type="checkbox" checked={value.includes(opt.value)} onChange={() => toggle(opt.value)} className="rounded" />
+          <span>{opt.label}</span>
+        </label>
+      ))}
+    </div>
+  );
+}
+
+function CfgRadios({ name, options, value, onChange }: {
+  name: string;
+  options: { value: string; label: string }[];
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {options.map(opt => (
+        <label key={opt.value} className="flex items-center gap-1 cursor-pointer">
+          <input type="radio" name={name} checked={value === opt.value} onChange={() => onChange(opt.value)} />
           <span>{opt.label}</span>
         </label>
       ))}
@@ -418,6 +577,15 @@ export default function ExamPage() {
   const [ksModes, setKsModes] = useState<string[]>([]);
   const [ksAccTypes, setKsAccTypes] = useState<string[]>([]);
 
+  // Ex. 9 — Enarmonies
+  const [enaAccTypes, setEnaAccTypes] = useState<string[]>([]);
+
+  // Ex. 10 — Acords
+  const [acordesModes, setAcordesModes] = useState<string[]>([]);
+
+  // Ex. 11 — Semitons
+  const [semitonosTypes, setSemitonosTypes] = useState<string[]>([]);
+
   const handleGenerate = useCallback(() => {
     const config: ExamConfig = {
       exerciseCounts: {},
@@ -429,10 +597,13 @@ export default function ExamPage() {
       intervalsConfig: { qualities: intQualities },
       scalesConfig: { modes: scaleModes, scaleTypes },
       keySigConfig: { modes: ksModes, accidentalTypes: ksAccTypes },
+      enarmoniaConfig: { accidentalTypes: enaAccTypes },
+      acordesConfig: { modes: acordesModes },
+      semitonosConfig: { types: semitonosTypes },
     };
     setExamData(generateExam(config));
     setShowSolution(false);
-  }, [syncMeters, transportCount, transportKeys, transportIntervals, intQualities, scaleModes, scaleTypes, ksModes, ksAccTypes]);
+  }, [syncMeters, transportCount, transportKeys, transportIntervals, intQualities, scaleModes, scaleTypes, ksModes, ksAccTypes, enaAccTypes, acordesModes, semitonosTypes]);
 
   const handlePrintExam = useCallback(() => {
     document.body.classList.remove("print-solution-only");
@@ -580,6 +751,40 @@ export default function ExamPage() {
                   ]}
                   value={ksAccTypes}
                   onChange={setKsAccTypes}
+                />
+              </CfgSection>
+
+              <CfgSection label="Ex. 9 — Enarmonies">
+                <p className="text-xs text-gray-500">Tipus (buit = qualsevol)</p>
+                <CfgCheckboxes
+                  options={[
+                    { value: "sharp",   label: "# → ♭ (ex: Fa# → Solb)" },
+                    { value: "flat",    label: "♭ → # (ex: Solb → Fa#)" },
+                    { value: "natural", label: "Naturals (Mi/Fab, Si/Dob)" },
+                  ]}
+                  value={enaAccTypes}
+                  onChange={setEnaAccTypes}
+                />
+              </CfgSection>
+
+              <CfgSection label="Ex. 10 — Acords perfectes">
+                <p className="text-xs text-gray-500">Mode (buit = qualsevol)</p>
+                <CfgCheckboxes
+                  options={[{ value: "major", label: "Major" }, { value: "minor", label: "Menor" }]}
+                  value={acordesModes}
+                  onChange={setAcordesModes}
+                />
+              </CfgSection>
+
+              <CfgSection label="Ex. 11 — Semitons">
+                <p className="text-xs text-gray-500">Tipus (buit = qualsevol)</p>
+                <CfgCheckboxes
+                  options={[
+                    { value: "diatonic",  label: "Diatònic (ex: Mi–Fa)" },
+                    { value: "chromatic", label: "Cromàtic (ex: Do–Do#)" },
+                  ]}
+                  value={semitonosTypes}
+                  onChange={setSemitonosTypes}
                 />
               </CfgSection>
 

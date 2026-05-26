@@ -103,6 +103,18 @@ export interface KeySigConfig {
   accidentalTypes: string[]; // empty = any; "sharp" | "flat" | "none"
 }
 
+export interface EnarmoniaConfig {
+  accidentalTypes: string[]; // empty = any; "sharp" | "flat" | "natural"
+}
+
+export interface AcordesConfig {
+  modes: string[]; // empty = any; "major" | "minor"
+}
+
+export interface SemitonosConfig {
+  types: string[]; // empty = any; "diatonic" | "chromatic"
+}
+
 export interface ExamConfig {
   exerciseCounts: Record<string, number>;
   title: string;
@@ -113,6 +125,9 @@ export interface ExamConfig {
   intervalsConfig?: IntervalsConfig;
   scalesConfig?: ScalesConfig;
   keySigConfig?: KeySigConfig;
+  enarmoniaConfig?: EnarmoniaConfig;
+  acordesConfig?: AcordesConfig;
+  semitonosConfig?: SemitonosConfig;
 }
 
 export type ExamExerciseType =
@@ -123,7 +138,10 @@ export type ExamExerciseType =
   | "completar_compas"
   | "escalas"
   | "armadura"
-  | "notas_extranyas";
+  | "notas_extranyas"
+  | "enarmonia"
+  | "acordes"
+  | "semitonos";
 
 export interface ExamExercise {
   type: ExamExerciseType;

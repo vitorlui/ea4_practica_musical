@@ -9,6 +9,7 @@ import {
 import type {
   ExamData, ExamConfig, ExamExercise,
   TransportConfig, SyncopaConfig, IntervalsConfig, ScalesConfig, KeySigConfig,
+  EnarmoniaConfig, AcordesConfig, SemitonosConfig,
   Note,
 } from "../theory/types";
 import type { MeasureData } from "../components/music/MultiMeasureRenderer";
@@ -1162,9 +1163,174 @@ function generateNotasExtranyes(num: number): ExamExercise {
   };
 }
 
+// ── Enarmonies ────────────────────────────────────────────────────────────────
+interface EnarmoniaItemDef {
+  givenKey: string;
+  givenAcc: string | null;
+  givenLabel: string;
+  enaKey: string;
+  enaAcc: string | null;
+  enaLabel: string;
+  accType: "sharp" | "flat" | "natural";
+}
+
+const ENARMONIA_PAIRS: EnarmoniaItemDef[] = [
+  { givenKey: "f#/4", givenAcc: "#",  givenLabel: "Fa#",  enaKey: "gb/4", enaAcc: "b",  enaLabel: "Solb", accType: "sharp"   },
+  { givenKey: "c#/4", givenAcc: "#",  givenLabel: "Do#",  enaKey: "db/4", enaAcc: "b",  enaLabel: "Reb",  accType: "sharp"   },
+  { givenKey: "g#/4", givenAcc: "#",  givenLabel: "Sol#", enaKey: "ab/4", enaAcc: "b",  enaLabel: "Lab",  accType: "sharp"   },
+  { givenKey: "d#/4", givenAcc: "#",  givenLabel: "Re#",  enaKey: "eb/4", enaAcc: "b",  enaLabel: "Mib",  accType: "sharp"   },
+  { givenKey: "a#/4", givenAcc: "#",  givenLabel: "La#",  enaKey: "bb/4", enaAcc: "b",  enaLabel: "Sib",  accType: "sharp"   },
+  { givenKey: "gb/4", givenAcc: "b",  givenLabel: "Solb", enaKey: "f#/4", enaAcc: "#",  enaLabel: "Fa#",  accType: "flat"    },
+  { givenKey: "db/4", givenAcc: "b",  givenLabel: "Reb",  enaKey: "c#/4", enaAcc: "#",  enaLabel: "Do#",  accType: "flat"    },
+  { givenKey: "ab/4", givenAcc: "b",  givenLabel: "Lab",  enaKey: "g#/4", enaAcc: "#",  enaLabel: "Sol#", accType: "flat"    },
+  { givenKey: "eb/4", givenAcc: "b",  givenLabel: "Mib",  enaKey: "d#/4", enaAcc: "#",  enaLabel: "Re#",  accType: "flat"    },
+  { givenKey: "bb/4", givenAcc: "b",  givenLabel: "Sib",  enaKey: "a#/4", enaAcc: "#",  enaLabel: "La#",  accType: "flat"    },
+  { givenKey: "e/4",  givenAcc: null, givenLabel: "Mi",   enaKey: "fb/4", enaAcc: "b",  enaLabel: "Fab",  accType: "natural" },
+  { givenKey: "b/4",  givenAcc: null, givenLabel: "Si",   enaKey: "cb/5", enaAcc: "b",  enaLabel: "Dob",  accType: "natural" },
+];
+
+function generateEnarmoniaExercise(num: number, cfg: EnarmoniaConfig): ExamExercise {
+  const pool = cfg.accidentalTypes.length > 0
+    ? ENARMONIA_PAIRS.filter(x => cfg.accidentalTypes.includes(x.accType))
+    : ENARMONIA_PAIRS;
+  const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 6);
+
+  const items = shuffled.map(x => {
+    const givenQ: VexNote = { keys: [x.givenKey], duration: "h" };
+    if (x.givenAcc) givenQ.accidentals = [x.givenAcc];
+
+    const givenS: VexNote = { keys: [x.givenKey], duration: "h", color: "#1d4ed8", bottomAnnotations: [x.givenLabel], bottomAnnotationColors: ["#1d4ed8"] };
+    if (x.givenAcc) givenS.accidentals = [x.givenAcc];
+
+    const enaS: VexNote = { keys: [x.enaKey], duration: "h", color: "#16a34a", bottomAnnotations: [x.enaLabel], bottomAnnotationColors: ["#16a34a"] };
+    if (x.enaAcc) enaS.accidentals = [x.enaAcc];
+
+    return {
+      questionNotes: [givenQ, { keys: ["b/4"], duration: "hr", isRest: true } as VexNote],
+      solutionNotes: [givenS, enaS],
+      enaLabel: `${x.givenLabel} = ${x.enaLabel}`,
+    };
+  });
+
+  return {
+    type: "enarmonia",
+    number: num,
+    title: "Enarmonies",
+    instructions: "Escriu la nota enarmònica equivalent per a cadascuna de les notes donades.",
+    data: { items },
+    solution: { items },
+  };
+}
+
+// ── Acords perfectes ──────────────────────────────────────────────────────────
+interface AcordeItemDef {
+  keys: string[];
+  accs: (string | null)[] | null;
+  type: "major" | "minor";
+  label: string;
+  color: string;
+}
+
+const ACORDE_ITEMS: AcordeItemDef[] = [
+  { keys: ["c/4","e/4","g/4"],   accs: null,             type: "major", label: "Do major",  color: "#1d4ed8" },
+  { keys: ["g/4","b/4","d/5"],   accs: null,             type: "major", label: "Sol major", color: "#1d4ed8" },
+  { keys: ["f/4","a/4","c/5"],   accs: null,             type: "major", label: "Fa major",  color: "#1d4ed8" },
+  { keys: ["d/4","f#/4","a/4"],  accs: [null,"#",null],  type: "major", label: "Re major",  color: "#1d4ed8" },
+  { keys: ["bb/4","d/5","f/5"],  accs: ["b",null,null],  type: "major", label: "Si♭ major", color: "#1d4ed8" },
+  { keys: ["e/4","g#/4","b/4"],  accs: [null,"#",null],  type: "major", label: "Mi major",  color: "#1d4ed8" },
+  { keys: ["a/4","c/5","e/5"],   accs: null,             type: "minor", label: "La menor",  color: "#b91c1c" },
+  { keys: ["d/4","f/4","a/4"],   accs: null,             type: "minor", label: "Re menor",  color: "#b91c1c" },
+  { keys: ["e/4","g/4","b/4"],   accs: null,             type: "minor", label: "Mi menor",  color: "#b91c1c" },
+  { keys: ["g/4","bb/4","d/5"],  accs: [null,"b",null],  type: "minor", label: "Sol menor", color: "#b91c1c" },
+  { keys: ["c/4","eb/4","g/4"],  accs: [null,"b",null],  type: "minor", label: "Do menor",  color: "#b91c1c" },
+  { keys: ["b/4","d/5","f#/5"],  accs: [null,null,"#"],  type: "minor", label: "Si menor",  color: "#b91c1c" },
+];
+
+function generateAcordesExercise(num: number, cfg: AcordesConfig): ExamExercise {
+  const pool = cfg.modes.length > 0
+    ? ACORDE_ITEMS.filter(x => cfg.modes.includes(x.type))
+    : ACORDE_ITEMS;
+  const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 6);
+
+  const items = shuffled.map(x => {
+    const qNote: VexNote = { keys: x.keys, duration: "w" };
+    if (x.accs) qNote.accidentals = x.accs;
+    const sNote: VexNote = { keys: x.keys, duration: "w", color: x.color };
+    if (x.accs) sNote.accidentals = x.accs;
+    return { questionNote: qNote, solutionNote: sNote, label: x.label, color: x.color };
+  });
+
+  return {
+    type: "acordes",
+    number: num,
+    title: "Acords perfectes",
+    instructions: "Identifica el nom de cada acord perfecte (major o menor).",
+    data: { items },
+    solution: { items },
+  };
+}
+
+// ── Semitons ──────────────────────────────────────────────────────────────────
+interface SemitonoItemDef {
+  key1: string; key2: string;
+  acc1: string | null; acc2: string | null;
+  label1: string; label2: string;
+  type: "diatonic" | "chromatic";
+  typeLabel: string;
+  color: string;
+}
+
+const SEMITONO_ITEMS: SemitonoItemDef[] = [
+  // Diatònic (different note names, 1 semitone)
+  { key1: "e/4",  key2: "f/4",  acc1: null, acc2: null, label1: "Mi",  label2: "Fa",  type: "diatonic", typeLabel: "Diatònic", color: "#16a34a" },
+  { key1: "b/4",  key2: "c/5",  acc1: null, acc2: null, label1: "Si",  label2: "Do",  type: "diatonic", typeLabel: "Diatònic", color: "#16a34a" },
+  { key1: "f#/4", key2: "g/4",  acc1: "#",  acc2: null, label1: "Fa#", label2: "Sol", type: "diatonic", typeLabel: "Diatònic", color: "#16a34a" },
+  { key1: "c#/4", key2: "d/4",  acc1: "#",  acc2: null, label1: "Do#", label2: "Re",  type: "diatonic", typeLabel: "Diatònic", color: "#16a34a" },
+  { key1: "g/4",  key2: "ab/4", acc1: null, acc2: "b",  label1: "Sol", label2: "Lab", type: "diatonic", typeLabel: "Diatònic", color: "#16a34a" },
+  { key1: "d/4",  key2: "eb/4", acc1: null, acc2: "b",  label1: "Re",  label2: "Mib", type: "diatonic", typeLabel: "Diatònic", color: "#16a34a" },
+  // Cromàtic (same note name, different accidental)
+  { key1: "c/4",  key2: "c#/4", acc1: null, acc2: "#",  label1: "Do",  label2: "Do#", type: "chromatic", typeLabel: "Cromàtic", color: "#dc2626" },
+  { key1: "f/4",  key2: "f#/4", acc1: null, acc2: "#",  label1: "Fa",  label2: "Fa#", type: "chromatic", typeLabel: "Cromàtic", color: "#dc2626" },
+  { key1: "g/4",  key2: "g#/4", acc1: null, acc2: "#",  label1: "Sol", label2: "Sol#",type: "chromatic", typeLabel: "Cromàtic", color: "#dc2626" },
+  { key1: "a/4",  key2: "a#/4", acc1: null, acc2: "#",  label1: "La",  label2: "La#", type: "chromatic", typeLabel: "Cromàtic", color: "#dc2626" },
+  { key1: "db/4", key2: "d/4",  acc1: "b",  acc2: null, label1: "Reb", label2: "Re",  type: "chromatic", typeLabel: "Cromàtic", color: "#dc2626" },
+  { key1: "eb/4", key2: "e/4",  acc1: "b",  acc2: null, label1: "Mib", label2: "Mi",  type: "chromatic", typeLabel: "Cromàtic", color: "#dc2626" },
+];
+
+function generateSemitonosExercise(num: number, cfg: SemitonosConfig): ExamExercise {
+  const pool = cfg.types.length > 0
+    ? SEMITONO_ITEMS.filter(x => cfg.types.includes(x.type))
+    : SEMITONO_ITEMS;
+  const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 6);
+
+  const items = shuffled.map(x => {
+    const n1q: VexNote = { keys: [x.key1], duration: "q" };
+    if (x.acc1) n1q.accidentals = [x.acc1];
+    const n2q: VexNote = { keys: [x.key2], duration: "q" };
+    if (x.acc2) n2q.accidentals = [x.acc2];
+
+    const n1s: VexNote = { keys: [x.key1], duration: "q", color: x.color, bottomAnnotations: [x.label1], bottomAnnotationColors: [x.color] };
+    if (x.acc1) n1s.accidentals = [x.acc1];
+    const n2s: VexNote = { keys: [x.key2], duration: "q", color: x.color, bottomAnnotations: [x.label2], bottomAnnotationColors: [x.color] };
+    if (x.acc2) n2s.accidentals = [x.acc2];
+
+    return { questionNotes: [n1q, n2q], solutionNotes: [n1s, n2s], typeLabel: x.typeLabel, color: x.color };
+  });
+
+  return {
+    type: "semitonos",
+    number: num,
+    title: "Semitons",
+    instructions: "Identifica si cada parell de notes forma un semitò diatònic o cromàtic.",
+    data: { items },
+    solution: { items },
+  };
+}
+
 const DEFAULT_EXERCISE_ORDER = [
   "sincopa", "transporte", "compas_tonalidad", "intervalos",
   "completar_compas", "escalas", "armadura", "notas_extranyas",
+  "enarmonia", "acordes", "semitonos",
 ];
 
 export function generateExam(config: ExamConfig): ExamData {
@@ -1173,6 +1339,9 @@ export function generateExam(config: ExamConfig): ExamData {
   const ic: IntervalsConfig = config.intervalsConfig ?? { qualities: [] };
   const scl: ScalesConfig = config.scalesConfig ?? { modes: [], scaleTypes: [] };
   const ksc: KeySigConfig = config.keySigConfig ?? { modes: [], accidentalTypes: [] };
+  const enc: EnarmoniaConfig = config.enarmoniaConfig ?? { accidentalTypes: [] };
+  const adc: AcordesConfig = config.acordesConfig ?? { modes: [] };
+  const smc: SemitonosConfig = config.semitonosConfig ?? { types: [] };
 
   const exercises: ExamExercise[] = DEFAULT_EXERCISE_ORDER.map((type, i) => {
     const n = i + 1;
@@ -1185,6 +1354,9 @@ export function generateExam(config: ExamConfig): ExamData {
       case "escalas":          return generateScaleExercise(n, scl);
       case "armadura":         return generateKeySignatureExercise(n, ksc);
       case "notas_extranyas":  return generateNotasExtranyes(n);
+      case "enarmonia":        return generateEnarmoniaExercise(n, enc);
+      case "acordes":          return generateAcordesExercise(n, adc);
+      case "semitonos":        return generateSemitonosExercise(n, smc);
       default:                 return generateNotasExtranyes(n);
     }
   });
