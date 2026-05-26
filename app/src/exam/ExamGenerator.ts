@@ -984,7 +984,8 @@ function generateIntervalExercise(num: number, _cfg: IntervalsConfig): ExamExerc
     const iv = seq.intervals[i - 1];
     const tLabel = tonesLabel(iv.label);
     const dirLabel = iv.ascending ? "ASC" : "DESC";
-    const lines = [iv.label, tLabel, dirLabel];
+    const conjLabel = iv.label.startsWith("2ª") ? "Conjunt" : "Disjunt";
+    const lines = [iv.label, tLabel, `${dirLabel} · ${conjLabel} · Simple`];
     if (iv.ascending) {
       return { keys: [key], duration: "q", annotations: lines, annotationColors: ["#1d4ed8", "#1d4ed8", "#1d4ed8"] };
     } else {

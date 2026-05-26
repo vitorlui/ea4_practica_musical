@@ -306,6 +306,11 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
                     />
                   </div>
                 ))}
+                <div className="mt-3 text-xs text-gray-600 space-y-0.5 border-t border-blue-100 pt-2">
+                  <p className="font-semibold text-gray-700">Repàs:</p>
+                  <p><strong>Transport:</strong> desplaça tota la melodia un interval concret amunt o avall, mantenint exactament la mateixa estructura d'intervals entre les notes.</p>
+                  <p><strong>Armadura:</strong> la nova tonalitat s'obté transposant la tònica original el mateix interval. Ex: Do major + 2ª major superior → Re major (armadura 2#).</p>
+                </div>
               </>
             );
           })()}
@@ -326,38 +331,62 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
                 ks={str(sol, "keySignature")}
                 ts={str(sol, "timeSignature")}
               />
+              <div className="mt-3 text-xs text-gray-600 space-y-0.5 border-t border-blue-100 pt-2">
+                <p className="font-semibold text-gray-700">Repàs:</p>
+                <p><strong style={{ color: "#1d4ed8" }}>I (Tònica):</strong> 1r grau, centre tonal. Inici i final de la frase.</p>
+                <p><strong style={{ color: "#16a34a" }}>IV (Subdominant):</strong> 4t grau (4ª justa ↑ des de I). Contrast, tensió subdominant.</p>
+                <p><strong style={{ color: "#c2410c" }}>V (Dominant):</strong> 5è grau (5ª justa ↑ des de I). Prepara la cadència a la tònica.</p>
+                <p><strong style={{ color: "#dc2626" }}>VII (Sensible):</strong> 7è grau, 1 semitò per sota de I. Tendència forta a resoldre cap a I.</p>
+              </div>
             </>
           )}
 
           {exercise.type === "intervalos" && (
-            <div className="overflow-x-auto">
-              <VexFlowRenderer
-                notes={(sol.notes as Parameters<typeof VexFlowRenderer>[0]["notes"]) ?? []}
-                keySignature="C"
-                timeSignature=""
-                staveY={80}
-                width={850}
-                height={270}
-              />
-            </div>
+            <>
+              <div className="overflow-x-auto">
+                <VexFlowRenderer
+                  notes={(sol.notes as Parameters<typeof VexFlowRenderer>[0]["notes"]) ?? []}
+                  keySignature="C"
+                  timeSignature=""
+                  staveY={80}
+                  width={850}
+                  height={270}
+                />
+              </div>
+              <div className="mt-3 text-xs text-gray-600 space-y-0.5 border-t border-blue-100 pt-2">
+                <p className="font-semibold text-gray-700">Repàs:</p>
+                <p><strong>Número:</strong> compta totes les notes des de l'inferior fins la superior, inclosos els extrems. Do→Sol = 5ª (Do Re Mi Fa Sol = 5 notes).</p>
+                <p><strong>Qualitat:</strong> 2ªm=1ST · 2ªM=1T · 3ªm=1T+½T · 3ªM=2T · 4ªJ=2T+½T · 5ªJ=3T+½T · 6ªm=4T · 6ªM=4T+½T · 7ªm=5T · 7ªM=5T+½T · 8ªJ=6T.</p>
+                <p><strong>Conjunt / Disjunt:</strong> interval de 2ª = moviment conjunt (per grau). Interval &gt; 2ª = disjunt (salt).</p>
+                <p><strong>Simple / Compost:</strong> fins a 8ª inclusiva = simple. Més gran que una 8ª (9ª, 10ª...) = compost.</p>
+              </div>
+            </>
           )}
 
           {exercise.type === "completar_compas" && (() => {
             type CMItem = { timeSignature: string; questionNotes: VexNote[]; completionNotes: VexNote[] };
             const items = (sol.items ?? []) as CMItem[];
             return (
-              <div className="grid grid-cols-3 gap-x-4 gap-y-1">
-                {items.map((item, i) => (
-                  <VexFlowRenderer key={i}
-                    notes={[...item.questionNotes, ...item.completionNotes]}
-                    timeSignature={item.timeSignature}
-                    keySignature="C"
-                    width={250}
-                    height={130}
-                    staveY={30}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-3 gap-x-4 gap-y-1">
+                  {items.map((item, i) => (
+                    <VexFlowRenderer key={i}
+                      notes={[...item.questionNotes, ...item.completionNotes]}
+                      timeSignature={item.timeSignature}
+                      keySignature="C"
+                      width={250}
+                      height={130}
+                      staveY={30}
+                    />
+                  ))}
+                </div>
+                <div className="mt-3 text-xs text-gray-600 space-y-0.5 border-t border-blue-100 pt-2">
+                  <p className="font-semibold text-gray-700">Repàs:</p>
+                  <p><strong>Compàs:</strong> numerador = temps per compàs; denominador = figura d'1 temps. Ex: 3/4 = 3 negres; 6/8 = 6 corxeres (2 grups de 3).</p>
+                  <p><strong>Punt d'augment:</strong> allarga la nota la meitat del seu valor. Negra amb punt (♩.) = 1½ temps. Corxera amb punt = ¾ temps.</p>
+                  <p><strong>Equivalències:</strong> rodona (4) = 2 blanques = 4 negres = 8 corxeres = 16 semicorxeres.</p>
+                </div>
+              </>
             );
           })()}
 
@@ -377,6 +406,12 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
                   staveY={30}
                 />
               </div>
+              <div className="mt-3 text-xs text-gray-600 space-y-0.5 border-t border-blue-100 pt-2">
+                <p className="font-semibold text-gray-700">Repàs:</p>
+                <p><strong>Major:</strong> semitons entre 3r–4t i 7è–8è graus — T·T·ST·T·T·T·ST.</p>
+                <p><strong>Menor natural:</strong> semitons entre 2n–3r i 5è–6è graus — T·ST·T·T·ST·T·T.</p>
+                <p><strong>Menor harmònica:</strong> com la natural però amb el 7è grau elevat ½ to (sensible), creant interval de 2ª aug entre 6è i 7è.</p>
+              </div>
             </>
           )}
 
@@ -384,24 +419,32 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
             type KSItem = { vexKey: string; majorLabel: string; minorLabel: string };
             const items = (sol.items as KSItem[]) ?? [];
             return (
-              <div className="grid grid-cols-3 gap-x-4 gap-y-4">
-                {items.map((item, i) => (
-                  <div key={i} className="flex flex-col items-center">
-                    <VexFlowRenderer
-                      notes={[{ keys: ["b/4"], duration: "wr", isRest: true }]}
-                      keySignature={item.vexKey}
-                      timeSignature=""
-                      width={220}
-                      height={110}
-                      staveY={20}
-                    />
-                    <div className="mt-1 text-center text-xs">
-                      <p className="font-semibold text-blue-700">{item.majorLabel}</p>
-                      <p className="text-gray-600">Relativa: {item.minorLabel}</p>
+              <>
+                <div className="grid grid-cols-3 gap-x-4 gap-y-4">
+                  {items.map((item, i) => (
+                    <div key={i} className="flex flex-col items-center">
+                      <VexFlowRenderer
+                        notes={[{ keys: ["b/4"], duration: "wr", isRest: true }]}
+                        keySignature={item.vexKey}
+                        timeSignature=""
+                        width={220}
+                        height={110}
+                        staveY={20}
+                      />
+                      <div className="mt-1 text-center text-xs">
+                        <p className="font-semibold text-blue-700">{item.majorLabel}</p>
+                        <p className="text-gray-600">Relativa: {item.minorLabel}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+                <div className="mt-3 text-xs text-gray-600 space-y-0.5 border-t border-blue-100 pt-2">
+                  <p className="font-semibold text-gray-700">Repàs:</p>
+                  <p><strong>Ordre dels #:</strong> Fa–Do–Sol–Re–La–Mi–Si. Tonalitat major: última # + 1 semitò ↑. Ex: 2# (Fa#,Do#) → Re major.</p>
+                  <p><strong>Ordre dels ♭:</strong> Si–Mi–La–Re–Sol–Do–Fa. Tonalitat major: penúltim ♭. Ex: 3♭ (Si♭,Mi♭,La♭) → Mi♭ major.</p>
+                  <p><strong>Relativa menor:</strong> mateixa armadura; tònica 3ª menor per sota de la major (o 6ª major ↑). Ex: Do major → La menor.</p>
+                </div>
+              </>
             );
           })()}
 
@@ -430,21 +473,29 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
             type EnaItem = { solutionNotes: VexNote[]; enaLabel: string };
             const items = (sol.items as EnaItem[]) ?? [];
             return (
-              <div className="grid grid-cols-3 gap-x-4 gap-y-4">
-                {items.map((item, i) => (
-                  <div key={i} className="flex flex-col items-center">
-                    <VexFlowRenderer
-                      notes={item.solutionNotes}
-                      timeSignature=""
-                      keySignature="C"
-                      width={200}
-                      height={145}
-                      staveY={25}
-                    />
-                    <p className="text-center text-xs font-semibold text-blue-700 -mt-1">{item.enaLabel}</p>
-                  </div>
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-3 gap-x-4 gap-y-4">
+                  {items.map((item, i) => (
+                    <div key={i} className="flex flex-col items-center">
+                      <VexFlowRenderer
+                        notes={item.solutionNotes}
+                        timeSignature=""
+                        keySignature="C"
+                        width={200}
+                        height={145}
+                        staveY={25}
+                      />
+                      <p className="text-center text-xs font-semibold text-blue-700 -mt-1">{item.enaLabel}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 text-xs text-gray-600 space-y-0.5 border-t border-blue-100 pt-2">
+                  <p className="font-semibold text-gray-700">Repàs:</p>
+                  <p><strong>Enarmonia:</strong> dues notes que sonen igual però s'escriuen diferent. Mateix so, diferent nom i alteració.</p>
+                  <p><strong>Parelles principals:</strong> Fa#=Solb · Do#=Reb · Sol#=Lab · Re#=Mib · La#=Sib.</p>
+                  <p><strong>Enarmònics naturals:</strong> Mi=Fab (E=Fb) · Si=Dob (B=Cb). No necessiten alteració en un dels casos.</p>
+                </div>
+              </>
             );
           })()}
 
@@ -452,21 +503,29 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
             type AcordItem = { solutionNote: VexNote; label: string; color: string };
             const items = (sol.items as AcordItem[]) ?? [];
             return (
-              <div className="grid grid-cols-3 gap-x-4 gap-y-4">
-                {items.map((item, i) => (
-                  <div key={i} className="flex flex-col items-center">
-                    <VexFlowRenderer
-                      notes={[item.solutionNote]}
-                      timeSignature=""
-                      keySignature="C"
-                      width={200}
-                      height={120}
-                      staveY={20}
-                    />
-                    <p className="text-center text-xs font-semibold" style={{ color: item.color }}>{item.label}</p>
-                  </div>
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-3 gap-x-4 gap-y-4">
+                  {items.map((item, i) => (
+                    <div key={i} className="flex flex-col items-center">
+                      <VexFlowRenderer
+                        notes={[item.solutionNote]}
+                        timeSignature=""
+                        keySignature="C"
+                        width={200}
+                        height={120}
+                        staveY={20}
+                      />
+                      <p className="text-center text-xs font-semibold" style={{ color: item.color }}>{item.label}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 text-xs text-gray-600 space-y-0.5 border-t border-blue-100 pt-2">
+                  <p className="font-semibold text-gray-700">Repàs:</p>
+                  <p><strong style={{ color: "#1d4ed8" }}>Acord perfecte major:</strong> 3ª major (2T) + 3ª menor (1T+½T) = 5ª justa. Ex: Do–Mi–Sol.</p>
+                  <p><strong style={{ color: "#b91c1c" }}>Acord perfecte menor:</strong> 3ª menor (1T+½T) + 3ª major (2T) = 5ª justa. Ex: La–Do–Mi.</p>
+                  <p><strong>Clau:</strong> la 5ª sempre és justa (7 semitons). La diferència és la 3ª: major (4 semitons) o menor (3 semitons).</p>
+                </div>
+              </>
             );
           })()}
 
@@ -474,21 +533,29 @@ function ExerciseBlock({ exercise, showSolution }: { exercise: ExamExercise; sho
             type SemItem = { solutionNotes: VexNote[]; typeLabel: string; color: string };
             const items = (sol.items as SemItem[]) ?? [];
             return (
-              <div className="grid grid-cols-3 gap-x-4 gap-y-4">
-                {items.map((item, i) => (
-                  <div key={i} className="flex flex-col items-center">
-                    <VexFlowRenderer
-                      notes={item.solutionNotes}
-                      timeSignature=""
-                      keySignature="C"
-                      width={200}
-                      height={145}
-                      staveY={25}
-                    />
-                    <p className="text-center text-xs font-semibold -mt-1" style={{ color: item.color }}>{item.typeLabel}</p>
-                  </div>
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-3 gap-x-4 gap-y-4">
+                  {items.map((item, i) => (
+                    <div key={i} className="flex flex-col items-center">
+                      <VexFlowRenderer
+                        notes={item.solutionNotes}
+                        timeSignature=""
+                        keySignature="C"
+                        width={200}
+                        height={145}
+                        staveY={25}
+                      />
+                      <p className="text-center text-xs font-semibold -mt-1" style={{ color: item.color }}>{item.typeLabel}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 text-xs text-gray-600 space-y-0.5 border-t border-blue-100 pt-2">
+                  <p className="font-semibold text-gray-700">Repàs:</p>
+                  <p><strong style={{ color: "#16a34a" }}>Semitò diatònic:</strong> dues notes de nom diferent separades per 1 semitò. Ex: Mi–Fa, Si–Do, Fa#–Sol, Do#–Re. Noms distints.</p>
+                  <p><strong style={{ color: "#dc2626" }}>Semitò cromàtic:</strong> dues notes del mateix nom amb diferent alteració. Ex: Do–Do#, Fa–Fa#, Sol–Sol#. Nom idèntic.</p>
+                  <p><strong>Regla pràctica:</strong> mira els noms de les notes. Noms distints = diatònic. Nom igual = cromàtic.</p>
+                </div>
+              </>
             );
           })()}
         </SolutionBox>
